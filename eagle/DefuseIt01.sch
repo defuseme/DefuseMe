@@ -11400,6 +11400,8 @@ wire to board 2.54 mm (.1 inch) pitch header</description>
 <part name="J19" library="con-molex" deviceset="22-?-03" device="27-2031"/>
 <part name="J17" library="con-molex" deviceset="22-?-02" device="27-2021"/>
 <part name="J20" library="con-molex" deviceset="22-?-02" device="27-2021"/>
+<part name="P+7" library="supply1" deviceset="+5V" device=""/>
+<part name="GND11" library="supply1" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -11544,6 +11546,8 @@ wire to board 2.54 mm (.1 inch) pitch header</description>
 <instance part="J14" gate="-6" x="200.66" y="27.94" rot="R270"/>
 <instance part="J15" gate="-6" x="200.66" y="17.78" rot="R270"/>
 <instance part="J16" gate="-6" x="200.66" y="7.62" rot="R270"/>
+<instance part="P+7" gate="1" x="55.88" y="-7.62"/>
+<instance part="GND11" gate="1" x="55.88" y="-15.24"/>
 </instances>
 <busses>
 </busses>
@@ -11702,6 +11706,10 @@ wire to board 2.54 mm (.1 inch) pitch header</description>
 <junction x="226.06" y="160.02"/>
 <junction x="226.06" y="149.86"/>
 </segment>
+<segment>
+<pinref part="IC3" gate="A" pin="G"/>
+<pinref part="GND11" gate="1" pin="GND"/>
+</segment>
 </net>
 <net name="+5V" class="0">
 <segment>
@@ -11803,6 +11811,10 @@ wire to board 2.54 mm (.1 inch) pitch header</description>
 <pinref part="P+5" gate="1" pin="+5V"/>
 <wire x1="220.98" y1="172.72" x2="220.98" y2="160.02" width="0.1524" layer="91"/>
 <junction x="220.98" y="160.02"/>
+</segment>
+<segment>
+<pinref part="IC3" gate="A" pin="DIR"/>
+<pinref part="P+7" gate="1" pin="+5V"/>
 </segment>
 </net>
 <net name="+3V3" class="0">
@@ -12169,6 +12181,11 @@ wire to board 2.54 mm (.1 inch) pitch header</description>
 <wire x1="210.82" y1="167.64" x2="170.18" y2="167.64" width="0.1524" layer="91"/>
 <label x="172.72" y="167.64" size="1.778" layer="95"/>
 </segment>
+<segment>
+<pinref part="IC3" gate="A" pin="B7"/>
+<wire x1="81.28" y1="-2.54" x2="83.82" y2="-2.54" width="0.1524" layer="91"/>
+<label x="83.82" y="-2.54" size="1.27" layer="95" xref="yes"/>
+</segment>
 </net>
 <net name="SPI-MISO" class="0">
 <segment>
@@ -12222,12 +12239,22 @@ wire to board 2.54 mm (.1 inch) pitch header</description>
 <wire x1="205.74" y1="165.1" x2="170.18" y2="165.1" width="0.1524" layer="91"/>
 <label x="172.72" y="165.1" size="1.778" layer="95"/>
 </segment>
+<segment>
+<pinref part="IC3" gate="A" pin="A8"/>
+<wire x1="55.88" y1="-5.08" x2="53.34" y2="-5.08" width="0.1524" layer="91"/>
+<label x="53.34" y="-5.08" size="1.27" layer="95" rot="R180" xref="yes"/>
+</segment>
 </net>
 <net name="I-SPI-MOSI" class="0">
 <segment>
 <pinref part="PCB1" gate="G$1" pin="GPIO10/MOSI"/>
 <wire x1="33.02" y1="111.76" x2="7.62" y2="111.76" width="0.1524" layer="91"/>
 <label x="10.16" y="111.76" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="IC3" gate="A" pin="A7"/>
+<wire x1="55.88" y1="-2.54" x2="53.34" y2="-2.54" width="0.1524" layer="91"/>
+<label x="53.34" y="-2.54" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="I-SPI-MISO" class="0">
@@ -12236,12 +12263,29 @@ wire to board 2.54 mm (.1 inch) pitch header</description>
 <wire x1="33.02" y1="109.22" x2="7.62" y2="109.22" width="0.1524" layer="91"/>
 <label x="10.16" y="109.22" size="1.778" layer="95"/>
 </segment>
+<segment>
+<pinref part="IC3" gate="A" pin="B8"/>
+<wire x1="81.28" y1="-5.08" x2="83.82" y2="-5.08" width="0.1524" layer="91"/>
+<label x="83.82" y="-5.08" size="1.27" layer="95" xref="yes"/>
+</segment>
 </net>
-<net name="I-SPI-CLK" class="0">
+<net name="I-SPI-SCK" class="0">
 <segment>
 <pinref part="PCB1" gate="G$1" pin="GPIO11/SCLK"/>
 <wire x1="33.02" y1="106.68" x2="7.62" y2="106.68" width="0.1524" layer="91"/>
 <label x="10.16" y="106.68" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="IC3" gate="A" pin="A5"/>
+<wire x1="55.88" y1="2.54" x2="53.34" y2="2.54" width="0.1524" layer="91"/>
+<label x="53.34" y="2.54" size="1.27" layer="95" rot="R180" xref="yes"/>
+</segment>
+</net>
+<net name="SPI-SCK" class="0">
+<segment>
+<pinref part="IC3" gate="A" pin="B5"/>
+<wire x1="81.28" y1="2.54" x2="83.82" y2="2.54" width="0.1524" layer="91"/>
+<label x="83.82" y="2.54" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 </nets>
