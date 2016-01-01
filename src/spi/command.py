@@ -7,7 +7,7 @@ Created on Fri Jan  1 15:30:12 2016
 
 from enum import Enum
 
-class Commands(Enum):
+class Command(Enum):
     STATUS = 0x01
     STATUSREQ = 0x02
     REGISTER = 0x03
