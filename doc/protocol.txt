@@ -1,0 +1,99 @@
+=========
+Protokoll
+=========
+
+Startup
+-------
+
+Der Master fragt alle -16- Positionen (Endpunkte am SPI-Bus) via `ENUMERATE`-Command ab. Da es sich hierbei um eine Peer2Peer-Verbindung handelt eine eventuelle Antwort vom Modul einer Position zugeordnet werden. Auf dieses Command muss das Modul seine ID und seine Daten announcen. 
+
+Ein Modul besitzt eine ID, Metadatan und Eigenschaften, auch Tags genannt. Diese Informationen werden in zwei Blöcke aufgeteilt, Header und Payload. Im Header wird zunächst die ID übertragen und nachfolgend alle Metaeigenschaften des Modules. Im Payload-Block werden alle Tags als Key-Value-Paare übermittelt. Folgend ist eine Beispielhafte Antwort eines fiktiven Moduls auf das `ENUMERATE`-Command dargestellt:
+
+ID:23af
+VERSION:0
+URL:https://example.com/
+AUTHOR:Nerade
+DESC:Button and Led Module
+REPO:https://github.com/me/awesome-module.git
+
+ACTIVE:true
+BUTTON:1
+LED:4
+
+Nachdem der Master alle Module registriert hat, schickt er jedem Modul alle Daten der Pyaload-Blöcke aller anderen Module. Dies passiert mittels des `NEIGHBOUR-BROADCAST`-Command. Ausgehend vom obrigen Beispiel bekommt ein anderes Modul am Bus daraufhin folgendes Paket (ergenzt um ein weiteres fiktives Modul):
+
+ID:23af
+VERSION:0
+
+ACTIVE:true
+BUTTON:1
+LED:4
+
+
+ID:dea3
+VERSION:4a
+
+ACTIVE:false
+DISPLAY:1
+BATTERY:3
+ 
+Auf diese Weise kann jedes Modul Informationen über andere angebrachten Module erhalten und diese beispielsweise aggregieren um so die Anzahl aller Baterien zu zählen.
+
+Gameloop
+--------
+
+Während eines laufenden Spiels pollt der Master reihum alle Module und teilt diesen den aktuellen Stand des Spielverlaufs mit. Darunter fällt die verbleibende Spielzeit, die Anzahl der Strikes, also der Fehlversuche Module zu entschärfen und den Gesamtstatus des Spiels. Diese Informationen werden via `GAME_STATUS`-Command gesendet in folgendem Format versendet:
+
+TIME:1a (in Sekunden)
+STRIKES:0
+STATUS:1 (0=Standby,1=active,2=exploding)
+
+Als Antwort darauf erwartet der Master den Status des Moduls, eventuelle Reports über Strikes und eventuelle Änderungen an Tag-Werten in folgendem Format:
+
+STATUS:armed (disarmed,triggered)
+BATTERY:2
+
+Diese Loop wird mehrfach pro Sekunde durchlaufen.
+
+
+
+
+#############################
+####   DRAFT
+############################
+
+vom master ausgehend:
+
+ist da jemand?/wer?
+neighbour-broadcast: welche module an der bombe sitzen
+(settings broadcast)
+
+gamestatus broadcast: bomb status, spielzeit, strikes
+
+von den modulen:
+
+antwort an wer ist da: module id/name, metadaten(anleitung url, website, repository), tags
+
+tags: key-value pairs
+
+gamestatus antwort: active, deactive, triggered status, tag:key:value
+
+
+
+
+command:
+
+master -> module:
+
+enumerate,neighbour BC, settings BC, gamestatus BC
+
+
+blocks->field 
+
+key:value
+
+blockseperator = \n
+fieldseperator = | 
+kv-seperator = :
+
+
