@@ -7,7 +7,7 @@ Startup
 
 Der Master fragt alle -16- Positionen (Endpunkte am SPI-Bus) via `ENUMERATE`-Command ab. Da es sich hierbei um eine Peer2Peer-Verbindung handelt eine eventuelle Antwort vom Modul einer Position zugeordnet werden. Auf dieses Command muss das Modul seine ID und seine Daten announcen. 
 
-Ein Modul besitzt eine ID, Metadatan und Eigenschaften, auch Tags genannt. Diese Informationen werden in zwei Blöcke aufgeteilt, Header und Payload. Im Header wird zunächst die ID übertragen und nachfolgend alle Metaeigenschaften des Modules. Im Payload-Block werden alle Tags als Key-Value-Paare übermittelt. Folgend ist eine Beispielhafte Antwort eines fiktiven Moduls auf das `ENUMERATE`-Command dargestellt:
+Ein Modul besitzt eine ID, Metadaten und Eigenschaften, auch Tags genannt. Diese Informationen werden in zwei Blöcke aufgeteilt, Header und Payload. Im Header wird zunächst die ID übertragen und nachfolgend alle Metaeigenschaften des Modules. Im Payload-Block werden alle Tags als Key-Value-Paare übermittelt. Folgend ist eine Beispielhafte Antwort eines fiktiven Moduls auf das `ENUMERATE`-Command dargestellt:
 
 ID:23af
 VERSION:0
@@ -20,7 +20,7 @@ ACTIVE:true
 BUTTON:1
 LED:4
 
-Nachdem der Master alle Module registriert hat, schickt er jedem Modul alle Daten der Pyaload-Blöcke aller anderen Module. Dies passiert mittels des `NEIGHBOUR-BROADCAST`-Command. Ausgehend vom obrigen Beispiel bekommt ein anderes Modul am Bus daraufhin folgendes Paket (ergenzt um ein weiteres fiktives Modul):
+Nachdem der Master alle Module registriert hat, schickt er jedem Modul alle Daten der Payload-Blöcke aller anderen Module. Dies passiert mittels des `NEIGHBOUR-BROADCAST`-Command. Ausgehend vom obrigen Beispiel bekommt ein anderes Modul am Bus daraufhin folgendes Paket (ergenzt um ein weiteres fiktives Modul):
 
 ID:23af
 VERSION:0

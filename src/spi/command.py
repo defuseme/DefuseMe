@@ -8,12 +8,7 @@ Created on Fri Jan  1 15:30:12 2016
 from enum import Enum
 
 class Command(Enum):
-    STATUS = 0x01
-    STATUSREQ = 0x02
-    REGISTER = 0x03
-    ATTRREQ = 0x04
-    BROADCAST = 0x05
-    
-    EXPLODE = 0x10
-    DISARMED = 0x11
-    
+    ENUMERATE = 0x00
+    NEIGHBOUR = 0x01
+    SETTINGS = 0x02
+    GAMESTATUS = 0x03
