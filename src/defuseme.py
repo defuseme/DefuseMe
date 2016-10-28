@@ -1,16 +1,26 @@
-from core.encoder import Encoder
+from spi.encoder import Encoder
 
 class GameManager():
     def __init__(self):
         self.encoder = Encoder()
+        self._modules = []
 
     def get_modules(self):
-        self.encoder.send_enumerate()
+        return self._modules
+
+    def search_modules(self):
+
+        self._modules = self.encoder.discover()
+
 
 if __name__=='__main__':
     
+    print("Starting up")
     gm = GameManager()
-    gm.get_modules()
+    print("Collecting module information")
+    gm.search_modules()
+
+    print("Modules found:",gm.get_modules())
     
 
 
