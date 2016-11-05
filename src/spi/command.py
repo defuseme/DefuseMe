@@ -8,7 +8,7 @@ Created on Fri Jan  1 15:30:12 2016
 from enum import Enum
 
 class Command(Enum):
-    ENUMERATE = 0x00
-    NEIGHBOUR = 0x01
-    SETTINGS = 0x02
-    GAMESTATUS = 0x03
+    ENUMERATE = 0x80
+    NEIGHBOUR = 0x81
+    SETTINGS = 0x82
+    GAMESTATUS = 0x83
