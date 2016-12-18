@@ -2,6 +2,12 @@
 #define __PINARRAY__
 #include <Arduino.h>
 
+struct PinArrayConnection
+{
+	byte a;
+	byte b;
+};
+
 class PinArray
 {
   public:
@@ -21,6 +27,7 @@ class PinArray
     bool IsJustChanged();
     
     void Print();
+	byte GetConnections(PinArrayConnection c[], byte maxCount);
     
   protected:
     byte _nPins;

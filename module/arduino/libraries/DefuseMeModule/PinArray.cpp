@@ -87,8 +87,13 @@ byte PinArray::GetConnections()
     int mask = 1;
     for (byte j = 0; j < 16; j++)
     {
-      if (map & mask)
-        nConnections++;
+		if (map & mask)
+		{
+nConnections++;
+if (_aPinPort[i] == 99)
+nConnections++;
+		}
+        
       mask <<= 1;
     }
   }
@@ -105,7 +110,7 @@ int PinArray::ScanInput()
 
   for (byte i = 0; i < _nPins; i++)
   {
-    if (_aPinPort[i] >= 0)
+    if (_aPinPort[i] >= 0&& _aPinPort[i] < 99)
     {
       if (!digitalRead(_aPinPort[i]))
         map |= mask;
@@ -133,7 +138,11 @@ void PinArray::Scan()
 
   for (byte i = 0; i < _nPins; i++)
   {
-    if (_aPinPort[i] >= 0)
+    if (_aPinPort[i] == 99)
+    {
+      _aMapScan[i] = mapGND;
+    }
+    else if (_aPinPort[i] >= 0)
     {
       pinMode(_aPinPort[i], OUTPUT);
       digitalWrite(_aPinPort[i], 0);
@@ -227,4 +236,45 @@ void PinArray::Print()
   }
 
   Serial.println();
+}
+
+byte PinArray::GetConnections(PinArrayConnection c[], byte maxCount)
+{
+	byte nCount = 0;
+	int mask = 1;
+	int printed = 0;
+	int map = 0;
+
+	for (byte i = 0; i < 17; i++)
+	{
+		int map = _aMap[i];
+		int mask = 1;
+
+		if (map && !(printed & (1 << i)))
+		{
+			//        Serial.print("# ");
+			printed |= (1 << i);
+
+			for (byte j = 0; j < 16; j++)
+			{
+				if ((map & mask) && !(printed & mask))
+				{
+					if (i == 16)
+						c[nCount].a = 99;
+					else
+						c[nCount].a = i;
+
+					c[nCount].b = j;
+					nCount++;
+					if (nCount >= maxCount)
+						return nCount;
+					printed |= mask;
+				}
+				mask <<= 1;
+			}
+		}
+	}
+
+
+	return nCount;
 }
