@@ -10,7 +10,7 @@ char sSNO[32];
 
 void GenerateSNO(byte base)
 {
-  randomSeed(base);
+  randomSeed(base + 42);
 
   for (byte i = 0; i < 15; i++)
   {
@@ -42,7 +42,7 @@ void PrintList()
       if (i & mask)
         Serial.print("^");
       else
-        Serial.print("V");
+        Serial.print("v");
     }
     Serial.print("],");
 
@@ -51,7 +51,7 @@ void PrintList()
     for (int mask = 0x01; mask < 256; mask <<= 1)
     {
       if (i & mask)
-        Serial.print("V");
+        Serial.print("v");
       else
         Serial.print("^");
     }
@@ -78,6 +78,8 @@ void setup (void)
 
   Serial.print("SNO: ");
   Serial.println(sSNO);
+  Serial.print("DIP: ");
+  Serial.println(base);
 
   //The Values we want to send out to our neighbours
   tag *ourtags = new tag[2];
@@ -85,7 +87,7 @@ void setup (void)
   ourtags[1] = {.name = F("SNO"), .data = sSNO}; //serial number label
 
   //creates the module description and waits for the bomb controller to send the broadcasts of the other members and start the game
-  module.waitForInit(NULL, 0, F("ID:0815\n"
+  module.waitForInit(NULL, 0, F("ID:0123\n"
                                 "VERSION:0.1\n"
                                 "URL:https://example.com/\n"
                                 "AUTHOR:JK\n"
