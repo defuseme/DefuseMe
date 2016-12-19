@@ -8,13 +8,75 @@ char sSNO[32];
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void GenerateSNO(byte base)
+{
+  randomSeed(base);
+
+  for (byte i = 0; i < 15; i++)
+  {
+    byte r = random(10);
+    sSNO[i] = r + '0';
+  }
+  sSNO[15] = 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void PrintList()
+{
+  // print headline with keys
+  Serial.println("Index,DIP,FlipDIP,SNO");
+
+  for (int i = 0; i < 256; i++)
+  {
+    GenerateSNO(i);
+
+    //print index
+    Serial.print(i);
+    Serial.print(",");
+
+    // print DIP switch pattern
+    Serial.print("[");
+    for (int mask = 0x80; mask; mask >>= 1)
+    {
+      if (i & mask)
+        Serial.print("^");
+      else
+        Serial.print("V");
+    }
+    Serial.print("],");
+
+    // print flipped DIP switch pattern
+    Serial.print("[");
+    for (int mask = 0x01; mask < 256; mask <<= 1)
+    {
+      if (i & mask)
+        Serial.print("V");
+      else
+        Serial.print("^");
+    }
+    Serial.print("],");
+
+    // printserial number as string
+    Serial.print(sSNO);
+    Serial.println();
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void setup (void)
 {
   Serial.begin (115200);
 
-  //TODO generate hash serial number from dip value
-  
-  sprintf(sSNO, ">%d<", (int)dip);
+  //print serial number list for documentation
+  PrintList();
+
+  //generate preudo random serial number from dip value
+  byte base = dip;
+  GenerateSNO(base);
+
+  Serial.print("SNO: ");
   Serial.println(sSNO);
 
   //The Values we want to send out to our neighbours
