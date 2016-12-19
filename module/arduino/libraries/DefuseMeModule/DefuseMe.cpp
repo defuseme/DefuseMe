@@ -47,17 +47,19 @@ boolean DefuseMeModule::updateState() {
     return newGameStatus;
   }
   else{
-    if(demoModeMillis-millis()>20){
+    if((millis()-demoModeMillis)>20){
         demoModeMillis = millis();
-        if((millis() - demoModeStartMillis)<30000){
-          gameState[currentState].time = 30000 - (millis() - demoModeStartMillis);
+        if((millis() - demoModeStartMillis)<230000){
+          gameState[currentState].time = 230000 - (millis() - demoModeStartMillis);
           gameState[currentState].state = 1;
-          gameState[currentState].strikes = demoModeStrikes;
+		  gameState[currentState].strikes = 2; // demoModeStrikes;
         }else{
           gameState[currentState].time = 0;
           gameState[currentState].state = 2;
           gameState[currentState].strikes = demoModeStrikes;
         }
+		//JK currentState = (currentState + 1) % 2;
+		currentState ^= 1;
         return true;
     }else{
       return false;
@@ -68,7 +70,8 @@ boolean DefuseMeModule::updateState() {
 
 GameState DefuseMeModule::getGameState() {
   newGameStatus = false;
-  return gameState[(currentState + 1) % 2];
+  //JK return gameState[(currentState + 1) % 2];
+  return gameState[currentState ^ 1];
 }
 void DefuseMeModule::setMyState(byte state) {
   myState = state;
@@ -171,7 +174,8 @@ byte DefuseMeModule::handler(byte c) {
             case 2:
               gameState[currentState].state = atoi((char*)lineBuffers[curLine]);
               newGameStatus = true;
-              currentState = (currentState + 1) % 2;
+              //JK currentState = (currentState + 1) % 2;
+			  currentState ^= 1;
               if (myState == 2) {//the trigger state is only send once
                 myState = 1;
                 return '2';
