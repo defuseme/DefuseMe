@@ -15,6 +15,7 @@ URL:https://example.com/
 AUTHOR:Nerade
 DESC:Button and Led Module
 REPO:https://github.com/me/awesome-module.git
+REGISTER:<key>,<key>,<key>,<key>
 
 ACTIVE:true
 BUTTON:1
