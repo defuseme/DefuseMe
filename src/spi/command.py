@@ -12,3 +12,4 @@ class Command(Enum):
     NEIGHBOUR = 0x81
     SETTINGS = 0x82
     GAMESTATUS = 0x83
+    RESET = 0x84
