@@ -1,7 +1,7 @@
 #ifndef __DIPSWITCH__
 #define __DIPSWITCH__
 
-#include <arduino.h>
+#include <Arduino.h>
 
 class DipSwitch
 {
