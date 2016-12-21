@@ -56,7 +56,7 @@ void setup (void)
 {
   Serial.begin (115200);
   Serial.println(F("startstart"));
-
+  module.begin();
   // init "Armed LED" - pin 0 (RX) can not be uses in combination with serial
   pinMode(PIN_LED_ARMED, OUTPUT);
   digitalWrite(PIN_LED_ARMED, LED_ON);
@@ -75,9 +75,9 @@ void setup (void)
   ourtags[1] = {.name = F("BUTTON"), .data = "3"};    //1 button
   ourtags[2] = {.name = F("LED"), .data = "3"};       //3 leds (without armed LED)
 
-  /*
+  
     //creates the module description and waits for the bomb controller to send the broadcasts of the other members and start the game
-    module.waitForInit(interestingTags, 2, F("ID:2355\n"
+    module.waitForInit(NULL, 0, F("ID:2355\n"
                                   "VERSION:0\n"
                                   "URL:https://example.com/\n"
                                   "AUTHOR:Petschge\n"
@@ -86,16 +86,10 @@ void setup (void)
                        ourtags, 3);
 
 
-    if (button.hasValue()) {
-      Serial.print(F("BUTTON was set. Value: "));
-      Serial.println(  button.getValue());
-    } else {
-      Serial.println(F("BUTTON was not set!"));
-    }
 
     //those are not needed anymore
     delete ourtags;
-  */
+ 
 }
 
 ///////////////////////////////////////////////////////////////////////////////

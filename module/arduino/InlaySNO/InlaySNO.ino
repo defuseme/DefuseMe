@@ -94,7 +94,7 @@ void setup (void)
                                 "DESC:Inlay Serial Number\n"
                                 "REPO:https://github.com/me/awesome-module.git\n"),
                      ourtags, 2);
-
+  module.setMyState(0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

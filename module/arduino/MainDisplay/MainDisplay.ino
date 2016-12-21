@@ -8,7 +8,7 @@
 
 DefuseMeModule module;
 Adafruit_7segment matrix = Adafruit_7segment();
-LED armedLED(0);
+LED armedLED(2);
 LED strikeLED[4] { (9), (6), (5), (3) };
 
 byte blink = 0;
@@ -25,7 +25,7 @@ unsigned long millisSlot = 0;
 
 void setup (void)
 {
-  //Serial.begin (115200);
+  Serial.begin (115200);
 
   Serial.print("Main Display");
   Serial.println();
@@ -45,7 +45,7 @@ void setup (void)
                                 "DESC:Main Display\n"
                                 "REPO:https://github.com/me/awesome-module.git\n"),
                      ourtags, 2);
-
+  module.setMyState(0);//module is inactive
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,9 @@ void loop (void)
     countdown = module.getGameState().time;
     state = module.getGameState().state;
     strikes = module.getGameState().strikes;
-
+if(state==0){
+  Serial.println("success");
+}
     armedLED = state;
 
     blink = !blink;

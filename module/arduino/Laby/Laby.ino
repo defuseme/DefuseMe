@@ -275,7 +275,7 @@ void setup() {
   ourtags[1] = {.name = F("BUTTON"), .data = "4"}; //4 button
   ourtags[2] = {.name = F("MATRIX"), .data = "1"}; //1 matrix
 
-  /*
+  
     //creates the module description and waits for the bomb controller to send the broadcasts of the other members and start the game
     module.waitForInit(interestingTags, 2, F("ID:1234\n"
                                   "VERSION:0\n"
@@ -284,11 +284,11 @@ void setup() {
                                   "DESC:Labyrinth\n"
                                   "REPO:https://github.com/me/awesome-module.git\n"),
                        ourtags, 3);
-    }
+    
 
     //those are not needed anymore
     delete ourtags;
-  */
+ 
 
 }
 
