@@ -11,7 +11,6 @@
 #define    CMD_NONE        0xFF
 
 
-static short seed;
 
 class TaggedValue {
     friend class DefuseMeModule;
@@ -114,7 +113,7 @@ class DefuseMeModule {
 
     volatile t_isr_data isr_data;
 
-    volatile byte currentState;
+    volatile byte currentState = 0;
     GameState gameState[2];
     byte myState = 1;
     volatile boolean newGameStatus = false;
@@ -127,8 +126,9 @@ class DefuseMeModule {
       int length;
       char* buffer;
     };
-    cmdResponse responses[4];
+    cmdResponse responses[5];
 
+    byte misoVal=0;
     boolean demoMode = false;
     unsigned long demoModeMillis = 0;
     unsigned long demoModeStartMillis = 0;
@@ -170,6 +170,7 @@ class DefuseMeModule {
     */
     byte handler(byte c);
 
+    void begin();
 
 };
 #endif
