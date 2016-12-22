@@ -55,8 +55,11 @@ PushButton rightSwitch(PIN_SWITCH_RIGHT);
 void setup (void)
 {
   Serial.begin (115200);
-  Serial.println(F("startstart"));
+  Serial.println(F("Airplane Switches"));
+
+  // init the module engine with SPI and random seed
   module.begin();
+
   // init "Armed LED" - pin 0 (RX) can not be uses in combination with serial
   pinMode(PIN_LED_ARMED, OUTPUT);
   digitalWrite(PIN_LED_ARMED, LED_ON);
@@ -69,27 +72,23 @@ void setup (void)
   pinMode(PIN_SWITCH_CENTER, INPUT_PULLUP);
   pinMode(PIN_SWITCH_RIGHT, INPUT_PULLUP);
 
-  //The Values we want to send out to our neighbours
+  // the Values we want to send out to our neighbours
   tag *ourtags = new tag[3];
   ourtags[0] = {.name = F("ACTIVE"), .data = "true"}; //active module =>user interaction possible
   ourtags[1] = {.name = F("BUTTON"), .data = "3"};    //1 button
   ourtags[2] = {.name = F("LED"), .data = "3"};       //3 leds (without armed LED)
 
-  
-    //creates the module description and waits for the bomb controller to send the broadcasts of the other members and start the game
-    module.waitForInit(NULL, 0, F("ID:2355\n"
-                                  "VERSION:0\n"
-                                  "URL:https://example.com/\n"
-                                  "AUTHOR:Petschge\n"
-                                  "DESC:3 safety switches and 3 LEDs\n"
-                                  "REPO:https://github.com/me/awesome-module.git\n"),
-                       ourtags, 3);
+  // creates the module description and waits for the bomb controller to send the broadcasts of the other members and start the game
+  module.waitForInit(NULL, 0, F("ID:2359\n"
+                                "VERSION:0\n"
+                                "URL:https://defuseme.org/\n"
+                                "AUTHOR:Petschge\n"
+                                "DESC:3 safety switches and 3 LEDs\n"
+                                "REPO:https://github.com/defuseme/DefuseMe\n"),
+                     ourtags, 3);
 
-
-
-    //those are not needed anymore
-    delete ourtags;
- 
+  // those are not needed anymore
+  delete ourtags;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -112,14 +111,14 @@ void loop (void)
 ///////////////////////////////////////////////////////////////////////////////
 
 byte AirplaneSwitchesSM::DoProcessInternal() {
-  if(running && (c_boom == 0)) {
+  if (running && (c_boom == 0)) {
     // Update LEDs
     digitalWrite(PIN_LED_LEFT, !!!(ledstate & 4));
     digitalWrite(PIN_LED_CENTER, !!!(ledstate & 2));
     digitalWrite(PIN_LED_RIGHT, !!!(ledstate & 1));
 
     // Update armed state
-    if(ledstate == strikes) {
+    if (ledstate == strikes) {
       // disarmed
       module.setMyState(0);
       digitalWrite(PIN_LED_ARMED, LED_OFF);
@@ -129,7 +128,7 @@ byte AirplaneSwitchesSM::DoProcessInternal() {
       digitalWrite(PIN_LED_ARMED, LED_ON);
     }
   }
-  
+
   switch (_eState) {
     // S_SelfTest -- test all LED and make sure the buttons are down
     default:
@@ -139,7 +138,7 @@ byte AirplaneSwitchesSM::DoProcessInternal() {
       leftSwitch.DoReset();   // reset pressed and released flags in button class
       centerSwitch.DoReset();
       rightSwitch.DoReset();
-      
+
       digitalWrite(PIN_LED_LEFT, LED_ON);
       digitalWrite(PIN_LED_CENTER, LED_ON);
       digitalWrite(PIN_LED_RIGHT, LED_ON);
@@ -148,12 +147,12 @@ byte AirplaneSwitchesSM::DoProcessInternal() {
       centerSwitch.DoProcess();
       rightSwitch.DoProcess();
       static byte counter = 0;
-      if(counter++ < 100) {
+      if (counter++ < 100) {
         return S_SelfTest;
       }
       return S_Init;
-    
-    
+
+
     // S_Init - lets go
     case S_Init:
       Serial.println(F("S_init "));
@@ -163,12 +162,12 @@ byte AirplaneSwitchesSM::DoProcessInternal() {
 
       // set initial state
       // FIXME: Use random seed of the global module to seed RNG!
-      ledstate = 4+random(4);
+      ledstate = 4 + random(4);
       Serial.println(ledstate);
 
       running = true;
-      
-      if(!leftSwitch.IsDown() && !centerSwitch.IsDown() && !rightSwitch.IsDown() ) {
+
+      if (!leftSwitch.IsDown() && !centerSwitch.IsDown() && !rightSwitch.IsDown() ) {
         return S_WaitOn;
       }
 
@@ -187,12 +186,12 @@ byte AirplaneSwitchesSM::DoProcessInternal() {
         button = 2;
         DelayNext(10);
         return S_Button;
-      } else if(centerSwitch.IsDown()) {
+      } else if (centerSwitch.IsDown()) {
         Serial.println(F("Button Center "));
         button = 1;
         DelayNext(10);
         return S_Button;
-      } else if(rightSwitch.IsDown()) {
+      } else if (rightSwitch.IsDown()) {
         Serial.println(F("Button Right "));
         button = 0;
         DelayNext(10);
@@ -208,7 +207,7 @@ byte AirplaneSwitchesSM::DoProcessInternal() {
       //Serial.println(F("S_WaitOff "));
       // reset boom counter
       c_boom = 0;
-      if(!leftSwitch.IsDown() && !centerSwitch.IsDown() && !rightSwitch.IsDown()) {
+      if (!leftSwitch.IsDown() && !centerSwitch.IsDown() && !rightSwitch.IsDown()) {
         return S_WaitOn;
       }
       //DelayNext(100);
@@ -218,13 +217,13 @@ byte AirplaneSwitchesSM::DoProcessInternal() {
     // S_Button -- The interesting part. the user decided to flip a switch
     case S_Button:
       Serial.println(F("S_Button "));
-      if(button == 2) { // The left button
-        if(centerSwitch.IsDown() || rightSwitch.IsDown()) { // Two switches on, or too quick flipping is an error
+      if (button == 2) { // The left button
+        if (centerSwitch.IsDown() || rightSwitch.IsDown()) { // Two switches on, or too quick flipping is an error
           return S_Boom;
         } else if (leftSwitch.IsDown()) { // Switch is still on
           byte newstate = nextstate_2[ledstate];
           Serial.println(newstate);
-          if(newstate == 10) {
+          if (newstate == 10) {
             return S_Boom;
           }
           ledstate = newstate;
@@ -232,27 +231,27 @@ byte AirplaneSwitchesSM::DoProcessInternal() {
         } else {
           return S_WaitOn;
         }
-      } else if(button == 1) { // The center button
-        if(leftSwitch.IsDown() || rightSwitch.IsDown()) { // Two switches on, or too quick flipping is an error
+      } else if (button == 1) { // The center button
+        if (leftSwitch.IsDown() || rightSwitch.IsDown()) { // Two switches on, or too quick flipping is an error
           return S_Boom;
         } else if (centerSwitch.IsDown()) { // Switch is still on
           byte newstate = nextstate_1[ledstate];
           Serial.println(newstate);
-          if(newstate == 10) {
+          if (newstate == 10) {
             return S_Boom;
           }
           ledstate = newstate;
-          return S_WaitOff;          
+          return S_WaitOff;
         } else {
           return S_WaitOn;
         }
-      } else if(button == 0) { // The right button
-        if(leftSwitch.IsDown() || centerSwitch.IsDown()) { // Two switches on, or too quick flipping is an error
+      } else if (button == 0) { // The right button
+        if (leftSwitch.IsDown() || centerSwitch.IsDown()) { // Two switches on, or too quick flipping is an error
           return S_Boom;
         } else if (rightSwitch.IsDown()) { // Switch is still on
           byte newstate = nextstate_0[ledstate];
           Serial.println(newstate);
-          if(newstate == 10) {
+          if (newstate == 10) {
             return S_Boom;
           }
           ledstate = newstate;
@@ -264,12 +263,12 @@ byte AirplaneSwitchesSM::DoProcessInternal() {
 
     // S_Boom -- That was the wrong decision
     case S_Boom:
-      if(c_boom == 0) {
+      if (c_boom == 0) {
         Serial.println(F("S_Boom "));
         module.trigger();
-      } else if(c_boom > 50) {
+      } else if (c_boom > 50) {
         return S_WaitOff;
-      } else if (c_boom %2) {
+      } else if (c_boom % 2) {
         digitalWrite(PIN_LED_LEFT, LED_ON);
         digitalWrite(PIN_LED_CENTER, LED_ON);
         digitalWrite(PIN_LED_RIGHT, LED_ON);
@@ -286,5 +285,4 @@ byte AirplaneSwitchesSM::DoProcessInternal() {
   return _eState;   // no state change - repeat actual state
 }
 
-
-
+///////////////////////////////////////////////////////////////////////////////

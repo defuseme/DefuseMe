@@ -1,10 +1,9 @@
 #include "pins_arduino.h"
 #include "DefuseMe.h"
 #include "LED.h"
-#include <Wire.h> // Enable this line if using Arduino Uno, Mega, etc.
+#include <Wire.h> // lib for I2C
 #include "Adafruit_LEDBackpack.h"
 #include "Adafruit_GFX.h"
-
 
 DefuseMeModule module;
 Adafruit_7segment matrix = Adafruit_7segment();
@@ -20,31 +19,29 @@ unsigned long millisSlot = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////////////////////////
-
 void setup (void)
 {
   Serial.begin (115200);
+  Serial.println("Main Display");
 
-  Serial.print("Main Display");
-  Serial.println();
-
+  // init the module engine with SPI and random seed
+  module.begin();
   matrix.begin(0x70);
 
-  //The Values we want to send out to our neighbours
+  // the Values we want to send out to our neighbours
   tag *ourtags = new tag[2];
   ourtags[0] = {.name = F("ACTIVE"), .data = "false"}; //passive module =>no user interaction possible
   ourtags[1] = {.name = F("7SEG"), .data = "1"}; //7 segment panels
 
-  //creates the module description and waits for the bomb controller to send the broadcasts of the other members and start the game
+  // creates the module description and waits for the bomb controller to send the broadcasts of the other members and start the game
   module.waitForInit(NULL, 0, F("ID:8888\n"
                                 "VERSION:0.1\n"
-                                "URL:https://example.com/\n"
+                                "URL:https://defuseme.org/\n"
                                 "AUTHOR:JK\n"
                                 "DESC:Main Display\n"
-                                "REPO:https://github.com/me/awesome-module.git\n"),
+                                "REPO:https://github.com/defuseme/DefuseMe\n"),
                      ourtags, 2);
+
   module.setMyState(0);//module is inactive
 }
 
@@ -57,9 +54,9 @@ void loop (void)
     countdown = module.getGameState().time;
     state = module.getGameState().state;
     strikes = module.getGameState().strikes;
-if(state==0){
-  Serial.println("success");
-}
+    if (state == 0) {
+      Serial.println("success");
+    }
     armedLED = state;
 
     blink = !blink;
@@ -81,17 +78,17 @@ if(state==0){
     return;
   millisSlot = millisAct + 4;
 
-  if (state == 2)
+  if (state == 2)   // BOOM
   {
     for (byte i = 0; i < 4; i++)
       strikeLED[i] = !random(4);
   }
-  else if (state == 0)
+  else if (state == 0)   // disarmed
   {
     for (byte i = 0; i < 4; i++)
       strikeLED[i] = 0;
   }
-  else
+  else   // armed
   {
     dim--;
     for (byte i = 0; i < 4; i++)
