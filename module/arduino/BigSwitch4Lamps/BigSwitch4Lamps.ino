@@ -4,6 +4,116 @@
 #include "LED.h"
 #include "StateMachine.h"
 
+struct STATES {
+  byte lamps;
+  byte switchpos;
+  };
+  
+// Generated wit Excel sheet BigSwitch.xlsx - do not change manually				
+// Lamps: 1=L-Pk 2=L-Or 4=R-Pk 8=R-Or   Switch: 0=0 L=1 R=2				
+STATES states[10][10] = {				
+1	,	0	,	// 0
+2	,	0	,	
+4	,	0	,	
+8	,	0	,	
+0	,	1	,	
+0	,	2	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	// 1
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	// 2
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	// 3
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	// 4
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	// 5
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	// 6
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	// 7
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	// 8
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	// 9
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0	,	
+0	,	0		
+};			
+
 class StateMachineBS : public StateMachine
 {
   public:
@@ -20,8 +130,9 @@ class StateMachineBS : public StateMachine
     };
 
   protected:
-    byte nBlink;
-    byte nStep;
+    byte _blink;
+    byte _step;
+    byte _variant;
 
     virtual byte DoProcessInternal();
 };
@@ -87,7 +198,8 @@ byte StateMachineBS::DoProcessInternal()
       WatchDog(0);   // reset watchdog
       armedLED = 1;
       module.setMyState(1);   // armed
-      nStep = 0;
+      _step = 0;
+      _variant = 0;//TODO
       return S_Wait4Switch0;
 
     // S_WaitSwitch0 - Blink till the user/admin set the switch to '0'
@@ -96,16 +208,16 @@ byte StateMachineBS::DoProcessInternal()
       if (multiswitch == 0)
         return S_SetLED;
 
-      nBlink = !nBlink;
+      _blink = !_blink;
       for (byte i = 0; i < 4; i++)
-        gameLED[i] = nBlink;
+        gameLED[i] = _blink;
       DelayNext(100);   // flicker with 5Hz
       break;   // stay in this state
 
     case S_SetLED:
       for (byte i = 0; i < 4; i++)
       {
-        gameLED[i] = 1;
+        gameLED[i] = states[_variant][_step].lamps & mask;
         mask <<= 1;
       }
       return S_Wait4SwitchChange;
@@ -113,13 +225,13 @@ byte StateMachineBS::DoProcessInternal()
     // S_ButtonPressed - action at button was pressed
 
     case S_Wait4SwitchChange:
-      if (!multiswitch.IsChanged())
+      if (! multiswitch.IsChanged())
         break;
 
-      if (multiswitch == 1)
+      if (multiswitch == states[_variant][_step].switchpos)
       {
-        nStep++;
-        if (0)
+        _step++;
+        if (states[_variant][_step].lamps == 0)
           return S_Disarmed;
 
         return S_SetLED;
