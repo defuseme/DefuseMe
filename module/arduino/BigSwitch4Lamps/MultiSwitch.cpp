@@ -1,5 +1,7 @@
 #include "MultiSwitch.h"
 
+///////////////////////////////////////////////////////////////////////////////
+
 MultiSwitch::MultiSwitch(int Pin0, int Pin1, int Pin2, int Pin3, int Pin4, int Pin5, int Pin6, int Pin7)
 {
   _aPinPort[0] = Pin0;
@@ -23,11 +25,13 @@ MultiSwitch::MultiSwitch(int Pin0, int Pin1, int Pin2, int Pin3, int Pin4, int P
   }
 
   _nDebounceCounter = 999;
+  _valueScan = 255;
   Scan();
+  _value = _valueScan;
   _bChanged = false;
 }
 
-
+///////////////////////////////////////////////////////////////////////////////
 
 void MultiSwitch::DoProcess()
 {
@@ -61,14 +65,22 @@ void MultiSwitch::Scan()
   }
   else
   {
-    if (_nDebounceCounter < 200 && _nDebounceCounter >= 0)
-      _nDebounceCounter++;
-    else
+    if (_nDebounceCounter < 0)
+      ; // do nothing
+    else if (_nDebounceCounter > 250)
     {
-      _value = _valueScan;
-      _bChanged = true;
+      if (_value != _valueScan)
+      {
+        _value = _valueScan;
+        _bChanged = true;
+      }
       _nDebounceCounter = -1;
+      //Serial.print(_value);
     }
+    else
+      _nDebounceCounter++;
   }
 }
+
+///////////////////////////////////////////////////////////////////////////////
 

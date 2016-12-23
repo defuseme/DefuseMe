@@ -7,112 +7,114 @@
 struct STATES {
   byte lamps;
   byte switchpos;
-  };
-  
-// Generated wit Excel sheet BigSwitch.xlsx - do not change manually				
-// Lamps: 1=L-Pk 2=L-Or 4=R-Pk 8=R-Or   Switch: 0=0 L=1 R=2				
-STATES states[10][10] = {				
-1	,	0	,	// 0
-2	,	0	,	
-4	,	0	,	
-8	,	0	,	
-0	,	1	,	
-0	,	2	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	// 1
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	// 2
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	// 3
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	// 4
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	// 5
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	// 6
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	// 7
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	// 8
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	// 9
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0	,	
-0	,	0		
-};			
+};
+
+// Generated wit Excel sheet BigSwitch.xlsx - do not change manually
+// Lamps: 1=L-Pk 2=L-Or 4=R-Pk 8=R-Or   Switch: 0=0 L=1 R=2
+STATES states[10][10] = {
+  10  , 1 , // 0
+  6 , 2 ,
+  5 , 0 ,
+  10  , 1 ,
+  13  , 2 ,
+  6 , 0 ,
+  0 , 0 ,
+  0 , 0 ,
+  0 , 0 ,
+  0 , 0 ,
+  10  , 1 , // 1
+  9 , 0 ,
+  10  , 2 ,
+  6 , 0 ,
+  5 , 2 ,
+  6 , 0 ,
+  0 , 0 ,
+  0 , 0 ,
+  0 , 0 ,
+  0 , 0 ,
+  6 , 1 , // 2
+  10  , 0 ,
+  9 , 1 ,
+  5 , 0 ,
+  6 , 1 ,
+  10  , 2 ,
+  6 , 0 ,
+  0 , 0 ,
+  0 , 0 ,
+  0 , 0 ,
+  5 , 2 , // 3
+  6 , 1 ,
+  10  , 2 ,
+  9 , 1 ,
+  5 , 0 ,
+  6 , 1 ,
+  10  , 2 ,
+  6 , 0 ,
+  0 , 0 ,
+  0 , 0 ,
+  6 , 1 , // 4
+  10  , 0 ,
+  6 , 2 ,
+  5 , 1 ,
+  6 , 0 ,
+  5 , 2 ,
+  6 , 0 ,
+  0 , 0 ,
+  0 , 0 ,
+  0 , 0 ,
+  10  , 1 , // 5
+  6 , 2 ,
+  10  , 1 ,
+  9 , 0 ,
+  5 , 1 ,
+  6 , 2 ,
+  10  , 0 ,
+  0 , 0 ,
+  0 , 0 ,
+  0 , 0 ,
+  9 , 2 , // 6
+  10  , 0 ,
+  6 , 2 ,
+  10  , 1 ,
+  6 , 0 ,
+  5 , 2 ,
+  6 , 0 ,
+  0 , 0 ,
+  0 , 0 ,
+  0 , 0 ,
+  9 , 2 , // 7
+  5 , 1 ,
+  9 , 2 ,
+  10  , 0 ,
+  6 , 2 ,
+  5 , 0 ,
+  9 , 1 ,
+  5 , 2 ,
+  6 , 0 ,
+  0 , 0 ,
+  5 , 2 , // 8
+  6 , 1 ,
+  10  , 2 ,
+  9 , 1 ,
+  5 , 0 ,
+  10  , 2 ,
+  6 , 0 ,
+  9 , 2 ,
+  10  , 0 ,
+  0 , 0 ,
+  9 , 2 , // 9
+  5 , 1 ,
+  9 , 2 ,
+  5 , 1 ,
+  10  , 2 ,
+  9 , 1 ,
+  5 , 0 ,
+  9 , 2 ,
+  6 , 0 ,
+  0 , 0
+};
+
+///////////////////////////////////////////////////////////////////////////////
 
 class StateMachineBS : public StateMachine
 {
@@ -136,6 +138,8 @@ class StateMachineBS : public StateMachine
 
     virtual byte DoProcessInternal();
 };
+
+///////////////////////////////////////////////////////////////////////////////
 
 DefuseMeModule module;
 StateMachineBS engine;
@@ -195,11 +199,14 @@ byte StateMachineBS::DoProcessInternal()
 
     default:
     case S_Init:
+      Serial.println(F("S_Init"));
       WatchDog(0);   // reset watchdog
       armedLED = 1;
       module.setMyState(1);   // armed
       _step = 0;
-      _variant = 0;//TODO
+      _variant = random(10);
+      Serial.print(F("Variant: "));
+      Serial.println(_variant);
       return S_Wait4Switch0;
 
     // S_WaitSwitch0 - Blink till the user/admin set the switch to '0'
@@ -215,11 +222,17 @@ byte StateMachineBS::DoProcessInternal()
       break;   // stay in this state
 
     case S_SetLED:
+      Serial.print(F("S_SetLED - "));
       for (byte i = 0; i < 4; i++)
       {
-        gameLED[i] = states[_variant][_step].lamps & mask;
+        if (states[_variant][_step].lamps & mask)
+          gameLED[i] = 1;
+        else
+          gameLED[i].dim(1);
+        Serial.print(states[_variant][_step].lamps & mask);
         mask <<= 1;
       }
+      Serial.println();
       return S_Wait4SwitchChange;
 
     // S_ButtonPressed - action at button was pressed
@@ -227,6 +240,9 @@ byte StateMachineBS::DoProcessInternal()
     case S_Wait4SwitchChange:
       if (! multiswitch.IsChanged())
         break;
+
+      Serial.print(F("S_Wait4SwitchChange - changed to "));
+      Serial.println(multiswitch);
 
       if (multiswitch == states[_variant][_step].switchpos)
       {
@@ -241,6 +257,7 @@ byte StateMachineBS::DoProcessInternal()
     // S_BOOM - set bomb to triggered. Forces a strike and come back to armed state
 
     case S_BOOM:
+      Serial.println(F("S_BOOM"));
       module.trigger();   // triger produces a strike on each call
       WatchDog(1000);   // reset state machine after 2sec flickering
       return S_BOOM_0;
@@ -262,6 +279,7 @@ byte StateMachineBS::DoProcessInternal()
     // S_Disarmed - set bomb to disarmed and be quiet
 
     case S_Disarmed:
+      Serial.println(F("S_Disarmed"));
       module.setMyState(0);   // set bomb to disarmed
       armedLED = 0;
       for (byte i = 0; i < 4; i++)
