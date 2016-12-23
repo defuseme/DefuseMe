@@ -1,3 +1,5 @@
+#ifndef __MULTISWITCH__
+#define __MULTISWITCH__
 
 #include <Arduino.h>
 
@@ -10,6 +12,7 @@ class MultiSwitch
     inline bool IsChanged() {
       return _bChanged;
     };
+
     inline byte get() {
       _bChanged = false;
       return _value;
@@ -26,10 +29,11 @@ class MultiSwitch
     int _aPinPort[8];
     byte _value;
     byte _valueScan;
-    byte _nDebounceCounter;
+    int _nDebounceCounter;
     bool _bChanged;
     unsigned long _millisLast;
 
     void Scan();
 };
 
+#endif // __MULTISWITCH__
