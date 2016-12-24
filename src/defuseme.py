@@ -64,8 +64,7 @@ class GameManager():
         print(strike_out,timeout)
         if defused:
             print("SUCCESS")
-            return False
-        if any((timeout,strike_out)):
+        elif any((timeout,strike_out)):
             print("BOOOOOOOM")
         return not any((timeout,strike_out))
 
@@ -98,8 +97,6 @@ class GameManager():
                     status=2
             )
             self._running = False
-
-
 
     def run(self,limit,max_strikes):
         self.max_strikes = max_strikes

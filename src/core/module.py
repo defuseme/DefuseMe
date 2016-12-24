@@ -12,6 +12,7 @@ class Module():
             raise TypeError
         self.slot = slot    
         self.uid = uid
+        self._active = tags.pop('ACTIVE',True)
         [setattr(self,field.lower(),tags.pop(field)) for field in META_FIELDS if (field in tags)]
         if hasattr(self,'register'):
             self.register = [tag for tag in self.register.split(',')]
@@ -34,6 +35,9 @@ class Module():
     def set_status(self,status):
         self._status = status
 
+    def is_active(self):
+        return self._active
+
     @staticmethod
     def create_from_string(position,s):
         match_obj = re.findall("""(?P<tag>^\w+):(?P<value>.+$)""",s,re.MULTILINE)
@@ -46,5 +50,3 @@ class Module():
 class MasterModule(Module):
     def get_status(self):
         return False
-
-
