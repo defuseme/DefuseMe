@@ -1,0 +1,2 @@
+Bomb   KEYWORD1
+defuseme    KEYWORD2
