@@ -67,7 +67,7 @@ void PrintList()
 
 void setup (void)
 {
-  Serial.begin (115200);
+  //Serial.begin (115200);
   Serial.println(F("Inlay SNO"));
 
   // init the module engine with SPI and random seed
