@@ -135,6 +135,7 @@ class StateMachineBS : public StateMachine
     byte _blink;
     byte _step;
     byte _variant;
+    int _updateLED;
 
     virtual byte DoProcessInternal();
 };
@@ -223,23 +224,36 @@ byte StateMachineBS::DoProcessInternal()
 
     case S_SetLED:
       Serial.print(F("S_SetLED - "));
+      Serial.println();
       for (byte i = 0; i < 4; i++)
       {
         if (states[_variant][_step].lamps & mask)
-          gameLED[i] = 1;
+        {
+          gameLED[i] = (random(23) != 0);
+        }
         else
-          gameLED[i].dim(1);
+        {
+          gameLED[i] = (random(123) == 0);   // flicker short time
+          gameLED[i] = 0;
+        }
         Serial.print(states[_variant][_step].lamps & mask);
         mask <<= 1;
       }
-      Serial.println();
+
       return S_Wait4SwitchChange;
 
     // S_ButtonPressed - action at button was pressed
 
     case S_Wait4SwitchChange:
       if (! multiswitch.IsChanged())
-        break;
+      {
+        if ((++_updateLED) > 42)
+        {
+          _updateLED = 0;
+          return S_SetLED;
+        }
+        return S_Wait4SwitchChange;
+      }
 
       Serial.print(F("S_Wait4SwitchChange - changed to "));
       Serial.println(multiswitch);
