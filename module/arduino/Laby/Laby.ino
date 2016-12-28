@@ -180,21 +180,23 @@ void LabyDisplay(byte state = 1)
 
   switch (state)
   {
-    case 2:   // BOOM
-      matrix.fillRect(0, 0,  8,  8, LED_YELLOW);
-    //matrix.drawLine(0, 0,  7,  7, LED_YELLOW);
-    //matrix.drawLine(0,  7,  7, 0, LED_YELLOW);
+    case 999:   // BOOM from bomb
+      matrix.drawLine(0, 0, 7, 7, LED_RED);
+      matrix.drawLine(0, 7, 7, 0, LED_RED);
+      break;
+
+    case 2:   // BOOM from module
+      matrix.fillRect(0, 0, 8, 8, LED_YELLOW);
     //vvv
 
     case 1:   // armed
     default:
       matrix.drawPixel(labyDestX, labyDestY, LED_RED);
       matrix.drawPixel(labyCursorX, labyCursorY, LED_GREEN);
-      armedLED = 1;
       break;
 
     case 0:   // disarmed
-      armedLED = 0;
+      // do nothing - display is blank
       break;
   }
 
@@ -234,6 +236,7 @@ void LabyMoveCursor(byte joystick)
     {
       // dirarmed
       module.setMyState(0);   // set bomb to disarmed
+      armedLED = 0;
       LabyDisplay(0);
       Serial.println(F("Disarmed"));
     }
@@ -242,6 +245,7 @@ void LabyMoveCursor(byte joystick)
   {
     //trigger
     module.trigger();   // triger produces a strike on each call
+    armedLED = 1;
     LabyDisplay(2);
     Serial.println(F("BOOM"));
   }
@@ -274,8 +278,8 @@ void setup() {
 
 
   // creates the module description and waits for the bomb controller to send the broadcasts of the other members and start the game
-    module.waitForInit(interestingTags,  2, F("ID:1248\n"
-                     "VERSION:0.1\n"
+  module.waitForInit(interestingTags,  2, F("ID:1248\n"
+                     "VERSION:0.2\n"
                      "URL:https://defuseme.org/\n"
                      "AUTHOR:JK\n"
                      "DESC:Labyrinth Matrix\n"
@@ -291,9 +295,16 @@ void setup() {
 void loop() {
   if (module.updateState())
   {
-    LabyDisplay(module.getGameState().state);
+    byte state = module.getGameState().state;
+
+    if (state == 2)   // BOOM from bomb
+    {
+      LabyDisplay(999);
+      armedLED = 1;
+    }
   }
 
+  // check for cursor buttons
   if (cursorButtonU.IsJustPressed())
     LabyMoveCursor(LABY_MOVE_U);
   if (cursorButtonR.IsJustPressed())
