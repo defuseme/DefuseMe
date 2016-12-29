@@ -26,6 +26,8 @@ class StateMachineBlueButton : public StateMachine
       S_Wait4Godot,
     };
 
+    byte sec1Digit;
+
   protected:
     byte nFadeValue;
 
@@ -36,29 +38,34 @@ class StateMachineBlueButton : public StateMachine
 #define PIN_BUTTON_LED 9
 #define PIN_ARMED_LED 0
 
-uint32_t color[2] { 0x20000, 0x20000 };
+uint32_t color[5] { 0x300000, 0x202000, 0x003000, 0x000030, 0x200020 };  // 0x002020, cyan is not descripable
 
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(12, 5, NEO_GRB + NEO_KHZ800);
 DefuseMeModule module;
 StateMachineBlueButton engine;
 PushButton blueButton(PIN_BUTTON_INPUT);
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(12, 5, NEO_GRB + NEO_KHZ800);
 LED armedLED(PIN_ARMED_LED);
 LED buttonLED(PIN_BUTTON_LED);
+
+byte variant = 0;
+char snoFirst = '1', snoLast = '9';
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void setup (void)
 {
-  //Serial.begin (115200);
-  //Serial.println(F("Blue Button - LED Stripe"));
+  Serial.begin (115200);
+  Serial.println(F("Blue Button - LED Stripe"));
 
   // init the module engine with SPI and random seed
   module.begin();
   pixels.begin(); // This initializes the NeoPixel library.
 
-  for (byte i = 0; i < 12; i++)
-    pixels.setPixelColor(i, 0x000030);
+  variant = random(5);
 
+  for (byte i = 0; i < 12; i++)
+    pixels.setPixelColor(i, color[variant]);
   pixels.show(); // This sends the updated pixel color to the hardware.
 
   // init "Armed LED" - pin 0 (RX) can not be uses in combination with serial
@@ -66,23 +73,51 @@ void setup (void)
   armedLED = 1;
   buttonLED = 1;
 
-  //The Values we want to send out to our neighbours
-  tag *ourtags = new tag[3];
+  // the Values we want to read from our neighbours
+  IntTaggedValue blinking = IntTaggedValue(F("BLINKINGLED"));
+  SnoTaggedValue sno = SnoTaggedValue(F("SNO"));
+  TaggedValue* interestingTags[2] = {&blinking, &sno};
+
+  // the Values we want to send out to our neighbours
+
+  tag *ourtags = new tag[3];// { ("A","B"), ("A","B"), ("A","B") };
   ourtags[0] = {.name = F("ACTIVE"), .data = "true"}; //active module =>user interaction possible
   ourtags[1] = {.name = F("BUTTON"), .data = "1"}; //1 button
   ourtags[2] = {.name = F("STRIPE"), .data = "1"}; //1 leds stripe
 
   // creates the module description and waits for the bomb controller to send the broadcasts of the other members and start the game
-  module.waitForInit(NULL, 0, F("ID:1111\n"
-                                "VERSION:0.0\n"
-                                "URL:https://defuseme.org/\n"
-                                "AUTHOR:JK\n"
-                                "DESC:Blue Button - LED Stripe\n"
-                                "REPO:https://github.com/defuseme/DefuseMe\n"),
+  module.waitForInit(interestingTags, 2, F("ID:1111\n"
+                     "VERSION:0.1\n"
+                     "URL:https://defuseme.org/\n"
+                     "AUTHOR:JK\n"
+                     "DESC:Blue Button - LED Stripe\n"
+                     "REPO:https://github.com/defuseme/DefuseMe\n"),
                      ourtags, 3);
 
+  // parse tags from neighbours
+  if (blinking.hasValue()) {
+    Serial.print(F("BLINKINGLED was set. Value: "));
+    Serial.println(  blinking.getValue());
+  }
+  else
+    Serial.println( "No blinking LED");
 
-  //those are not needed anymore
+  if (sno.hasValue()) {
+    Serial.print(F("SNO was set. Value: "));
+    Serial.println( (char*)sno.getString());
+    if (1)
+    {
+      for (byte i = 0; i < 12; i++)
+        pixels.setPixelColor(i, 0, 0, (sno.getDigit(i) - '0') * 20);
+      pixels.show(); // This sends the updated pixel color to the hardware.
+    }
+    snoFirst = sno.getDigit(0);
+    snoLast = sno.getDigit(14);
+  }
+  else
+    Serial.println( "No SNO");
+
+  // those are not needed anymore
   delete ourtags;
 }
 
@@ -93,6 +128,9 @@ void loop (void)
   if (module.updateState())
   {
     engine.SetGameState(module.getGameState());
+
+    int sec = module.getGameState().time / 1000;
+    engine.sec1Digit = sec % 10;
   }
 
   engine.DoProcess();
@@ -143,6 +181,8 @@ byte StateMachineBlueButton::DoProcessInternal()
     case S_ButtonPressed:
       buttonLED = 1;
       // >>> code your game logic here
+      if (sec1Digit != (snoLast - '0'))
+        return S_BOOM;
       WatchDog(10000);   // if button pressed for more than 10sec, reset state machine
       return S_Wait4ButtonReleased;
 
@@ -156,17 +196,19 @@ byte StateMachineBlueButton::DoProcessInternal()
     case S_ButtonReleased:
       WatchDog(0);   // reset watchdog
       // >>> code your game logic here
-      if (blueButton.GetDownTime() < 2000)
+      if (sec1Digit != (snoFirst - '0'))
         return S_BOOM;
-      else
-        return S_Disarmed;
+      //      if (blueButton.GetDownTime() < 2000)
+      //        return S_BOOM;
+      //      else
+      return S_Disarmed;
       break;
 
     // S_BOOM - set bomb to triggered. Forces a strike and come back to armed state
 
     case S_BOOM:
       module.trigger();   // triger produces a strike on each call
-      WatchDog(2000);   // reset state machine after 2sec flickering
+      WatchDog(1000);   // reset state machine after 2sec flickering
       return S_BOOM_0;
 
     case S_BOOM_0:
@@ -187,6 +229,8 @@ byte StateMachineBlueButton::DoProcessInternal()
       module.setMyState(0);   // set bomb to disarmed
       armedLED = 0;
       buttonLED = 0;
+      pixels.clear();
+      pixels.show(); // This sends the updated pixel color to the hardware.
       return S_Wait4Godot;
 
     // S_Wait4Godot - wait forever (until button pressed again)
