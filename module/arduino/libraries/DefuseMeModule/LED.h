@@ -32,6 +32,9 @@ class LED
     inline void off() {
       set(0);
     }
+	inline void toggle() {
+		set(!get());
+	}
 
     void operator = (byte value) {
       set (value);

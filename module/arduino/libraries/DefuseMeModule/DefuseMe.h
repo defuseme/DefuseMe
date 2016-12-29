@@ -66,11 +66,39 @@ class IntTaggedValue: public TaggedValue {
     int value;
 };
 
+class SnoTaggedValue : public TaggedValue {
+public:
+	SnoTaggedValue(const __FlashStringHelper* tag) : TaggedValue(tag) {
+		//strcpy(_sno, "012345678901234");
+	};
+
+	char getDigit(byte i) {
+		return _sno[i];
+	}
+	char* getString() {
+		return _sno;
+	}
+	virtual void parse(const char* in) {
+		strcpy(_sno, strchr(in, ':') + 1);
+		Serial.println(_sno);
+
+		TaggedValue::parse(in);
+	};
+
+private:
+	char _sno[32];   // sno is always 15 digits
+};
+
 /**
    description of a feature (for example name="LED",data="4" to tell your neighbours you have 4 leds)
 */
 struct tag {
-  const  __FlashStringHelper* name;
+/*	tag(const  __FlashStringHelper* cname, char* cdata)
+	{
+		name = cname; data = cdata;
+	};
+ */
+const  __FlashStringHelper* name;
   char* data;
 };
 
@@ -91,7 +119,7 @@ struct GameState {
   */
   byte state;
   /**
-     count of strikes
+     count of strikes - starts with 0
   */
   byte strikes;
 };
@@ -165,10 +193,19 @@ class DefuseMeModule {
        TRIGGER the module if it is not deactivated (send state = 2 on next update => one more strike)
     */
     void trigger();
-    /**
-       interrupthandler
-    */
-    byte handler(byte c);
+	/**
+	sets own state to armed/active
+	*/
+	void setArmed() { setMyState(1); };
+	/**
+	sets own state to disarmed/inactive
+	*/
+	void setDisarmed() { setMyState(0); };
+
+	/**
+	interrupthandler
+	*/
+	byte handler(byte c);
 
     void begin();
 
