@@ -74,7 +74,7 @@ void setup (void)
   buttonLED = 1;
 
   // the Values we want to read from our neighbours
-  IntTaggedValue blinking = IntTaggedValue(F("BLINKINGLED"));
+  IntTaggedValue blinking(F("BLINKINGLED"));
   SnoTaggedValue sno = SnoTaggedValue(F("SNO"));
   TaggedValue* interestingTags[2] = {&blinking, &sno};
 
@@ -105,7 +105,7 @@ void setup (void)
   if (sno.hasValue()) {
     Serial.print(F("SNO was set. Value: "));
     Serial.println( (char*)sno.getString());
-    if (1)
+    if (1)   // test only
     {
       for (byte i = 0; i < 12; i++)
         pixels.setPixelColor(i, 0, 0, (sno.getDigit(i) - '0') * 20);

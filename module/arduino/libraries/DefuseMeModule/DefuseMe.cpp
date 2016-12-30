@@ -20,14 +20,14 @@ ISR(SPI_STC_vect)
 #error "ISR not defined for this processor"
 #endif
 DefuseMeModule::DefuseMeModule()
-    : responses{
-      { 0, 0 }, //CMD_ENUMERATE
-      { 0, 0 }, //CMD_NEIGHBOUR
-      { 0, 0 }, //CMD_SETTINGS
-      { 0, 0 }, //CMD_GAMESTATUS
-      { 0, 0 }  //CMD_RESET
+	: responses{
+	  { 0, 0 }, //CMD_ENUMERATE
+	  { 0, 0 }, //CMD_NEIGHBOUR
+	  { 0, 0 }, //CMD_SETTINGS
+	  { 0, 0 }, //CMD_GAMESTATUS
+	  { 0, 0 }  //CMD_RESET
     }
-
+{}
 
 boolean DefuseMeModule::updateState()
 {
@@ -47,7 +47,8 @@ boolean DefuseMeModule::updateState()
       }
       currentState ^= 1;
       return true;
-    } else {
+    } 
+	else {
       return false;
     }
   }
@@ -226,6 +227,9 @@ boolean TaggedValue::hasValue()
 
 boolean TaggedValue::check(const char* in)
 {
+	Serial.print("Base  check: ");
+	Serial.println(in);
+
   return startsWith_P(tag, in);
 };
 

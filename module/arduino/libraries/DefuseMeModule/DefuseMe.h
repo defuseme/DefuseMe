@@ -41,12 +41,12 @@ class TaggedValue {
     {
       size_t lenpre = strlen(pre),
              lenstr = strlen(str);
-      return lenstr < lenpre + 1 ? false : ((strncmp( pre, str, lenpre) == 0) && str[lenpre+1]==':');
+      return (lenstr < (lenpre + 1)) ? false : ((strncmp( pre, str, lenpre) == 0) && str[lenpre]==':');
     }
     bool startsWith_P(const __FlashStringHelper *pre, const char *str) {
       size_t lenpre = strlen_P((const char *)pre),
              lenstr = strlen(str);
-      return lenstr < lenpre + 1 ? false : ((strncmp_P(str, (const char *) pre, lenpre) == 0) && str[lenpre+1]==':');
+      return (lenstr < (lenpre + 1)) ? false : ((strncmp_P(str, (const char *) pre, lenpre) == 0) && str[lenpre]==':');
     }
     boolean valset = false;
 
@@ -79,6 +79,8 @@ public:
 		return _sno;
 	}
 	virtual void parse(const char* in) {
+		Serial.print("Sno parse: ");
+		Serial.println(in);
 		strcpy(_sno, strchr(in, ':') + 1);
 		Serial.println(_sno);
 
