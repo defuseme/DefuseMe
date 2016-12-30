@@ -106,7 +106,7 @@ class GameManager():
 if __name__=='__main__':
     
     if len(sys.argv) != 3:
-        print("You failed, BITCH!")
+        print("Usage: defuseme.py <seconds> <strikes(1-5)>")
         sys.exit()
     print("Starting up")
     gm = GameManager()
@@ -122,5 +122,12 @@ if __name__=='__main__':
     #pprint.pprint(gm.get_modules()[0].get_byte_repr())
     gm.send_neighbours()
 
-    gm.run(sys.argv[1],int(sys.argv[2]))
+    strikes = int(sys.argv[2])
+
+    if strikes > 5:
+        strikes = 5
+    elif strikes < 1:
+        strikes = 1
+
+    gm.run(sys.argv[1],strikes)
     gm.encoder.cleanup()

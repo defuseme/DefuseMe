@@ -102,17 +102,28 @@ class Encoder():
         if LOOPBACK:
             return request
 
-        time.sleep(0.01)
-        response =  []
-        for i in range(0,request[0]):
-            response.append(self.spi.readbytes(1)[0])
-        print("Hexdump:",response)
-        response = str(bytes(response),'ascii')
-        try:
-            module = Module.create_from_string(slot,response)
-        except (TypeError,KeyError):
-            print("Error detecting device on slot {}".format(slot))
-            module = None
+        module = None
+        retry = 0
+        while not module:
+            retry += 1
+            time.sleep(0.01)
+            response =  []
+            for i in range(0,request[0]):
+                current_byte = self.spi.readbytes(1)[0]
+                if current_byte==b'\0':
+                    print("Zero error")
+                    current_byte = self.spi.readbytes(1)[0]
+                response.append(current_byte)
+                time.sleep(0.0001)
+            response = str(bytes(response),'ascii')
+            try:
+                module = Module.create_from_string(slot,response)
+            except (TypeError,KeyError):
+                module = None
+                if retry > 3:
+                    print("Error detecting device on slot {}".format(slot))
+                    print("Hexdump:",response)
+                    break
         self._close_connection()
         return module
 
@@ -153,7 +164,7 @@ class Encoder():
                 self._open_connection(slot)
                 self.spi.xfer2([Command.RESET.value,])
                 self.spi.xfer2(list(random.randint(0,0xffff).to_bytes(2,byteorder='little')))
-                print("reset",slot)
+                #print("reset",slot)
                 self._close_connection()
 
 
@@ -188,17 +199,17 @@ class Encoder():
         module_list = [module for module in module_list if module.get_slot()>=0]
         for module in module_list:
             self._open_connection(module.get_slot())
-            print("Scan")
+            #print("Scan")
             self.spi.xfer2([Command.GAMESTATUS.value,])
             self.spi.xfer2(list(bytes(str(time)+'\n','ascii')))
             self.spi.xfer2(list(bytes(str(strikes)+'\n','ascii')))
             resp_raw = self.spi.xfer2(list(bytes(str(status)+'\n','ascii')))
-            print(resp_raw)
+            #print(resp_raw)
             resp = resp_raw[1]-48
             if resp == 2:
                 trigger_count = trigger_count + 1
                 resp = 1
-            print(resp)
+            #print(resp)
             self._close_connection()
             module.set_status(bool(resp))
         return trigger_count
