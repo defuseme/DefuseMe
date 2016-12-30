@@ -27,8 +27,8 @@ DefuseMeModule::DefuseMeModule()
       { 0, 0 }, //CMD_GAMESTATUS
       { 0, 0 }  //CMD_RESET
     }
-{
-}
+
+
 boolean DefuseMeModule::updateState()
 {
   if (!demoMode) {
@@ -45,7 +45,6 @@ boolean DefuseMeModule::updateState()
         gameState[currentState].state = 2;
         gameState[currentState].strikes = demoModeStrikes;
       }
-      //JK currentState = (currentState + 1) % 2;
       currentState ^= 1;
       return true;
     } else {
@@ -57,9 +56,9 @@ boolean DefuseMeModule::updateState()
 GameState DefuseMeModule::getGameState()
 {
   newGameStatus = false;
-  //JK return gameState[(currentState + 1) % 2];
   return gameState[currentState ^ 1];
 }
+
 void DefuseMeModule::setMyState(byte state)
 {
   myState = state;
@@ -96,11 +95,10 @@ void DefuseMeModule::waitForInit(TaggedValue* tags[], const int len, const __Fla
   responses[0].length = out.length();
   responses[0].buffer = (char*)out.c_str();
   Serial.println(responses[0].buffer);
-  if (misoVal == 1) {
+  if (demoMode) {
     Serial.println(F("Nothing attached to MISO-Pin => starting Demo Mode"));
     responses[0] = { 0, 0 };
     out = "";
-    demoMode = true;
     demoModeStartMillis = millis();
     demoModeMillis = millis();
     gameState[currentState].time = 30000;
@@ -109,15 +107,16 @@ void DefuseMeModule::waitForInit(TaggedValue* tags[], const int len, const __Fla
 
     return;
   }
+
   do {
     if (neighbourLineWaiting) {
+	  neighbourLineWaiting = false;
       for (int i = 0; i < len; i++) {
-        byte waitingLine = (curLine + 1) % 2;
+        byte waitingLine = curLine ^ 1;
         if (tags[i]->check((char*)lineBuffers[waitingLine])) {
           tags[i]->parse((char*)lineBuffers[waitingLine]);
         }
       }
-      neighbourLineWaiting = false;
     }
   } while (!updateState()); //we received a game state => init finished
   Serial.println(F("waitForInit: OK"));
@@ -127,11 +126,15 @@ void DefuseMeModule::waitForInit(TaggedValue* tags[], const int len, const __Fla
 
 void DefuseMeModule::begin()
 {
-  randomSeed(seed_ + analogRead(A0) + analogRead(A1) + analogRead(A2) + 42);
-#if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+  randomSeed(seed_ + analogRead(A6) + analogRead(A5) + 42);   // note: A5 and A6 are analog inputs only - no LED/switch/... can force to GND
+  
+  // use MISO line to detect if there is a bomb at the other end of the line (PullDown resistor 1kOhm)
   pinMode(MISO, INPUT_PULLUP);
-  misoVal = digitalRead(MISO);
+  for (byte i = 0; i < 100; i++)   // be sure there is no transmition with randomly 0 on MISO line
+	  demoMode += digitalRead(MISO);
   pinMode(MISO, INPUT);
+
+#if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
   // have to send on master in, *slave out*
   pinMode(MISO, OUTPUT);
   // turn on SPI in slave mode
@@ -173,7 +176,8 @@ byte DefuseMeModule::handler(byte c)
       lineBuffers[curLine][isr_data.writePos] = 0;
       if (isr_data.lastCMD == CMD_NEIGHBOUR) {
         neighbourLineWaiting = true;
-      } else if (isr_data.lastCMD == CMD_GAMESTATUS) {
+      } 
+	  else if (isr_data.lastCMD == CMD_GAMESTATUS) {
         switch (isr_data.nlc++) {
         case 0:
           gameState[currentState].time = atol((char*)lineBuffers[curLine]);
@@ -194,13 +198,14 @@ byte DefuseMeModule::handler(byte c)
         }
       }
       isr_data.writePos = 0;
-      curLine = (curLine + 1) % 2;
+      curLine ^= 1;
       break;
     default: //no command and not 0 or '\n' => write it in the buffer
       lineBuffers[curLine][isr_data.writePos++] = c;
       break;
     }
-  } else {
+  }
+  else {   // reset command
     seed_ = (seed_ << 8) | ((short)c);
     if (++isr_data.writePos == 2) {
 #if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)

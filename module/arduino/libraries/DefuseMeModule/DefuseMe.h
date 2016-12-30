@@ -156,8 +156,7 @@ class DefuseMeModule {
     };
     cmdResponse responses[5];
 
-    byte misoVal=0;
-    boolean demoMode = false;
+	byte demoMode = 0;
     unsigned long demoModeMillis = 0;
     unsigned long demoModeStartMillis = 0;
     byte demoModeStrikes =0;
