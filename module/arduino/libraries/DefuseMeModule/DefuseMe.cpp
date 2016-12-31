@@ -75,7 +75,6 @@ void DefuseMeModule::trigger()
 
 void DefuseMeModule::waitForInit(TaggedValue* tags[], const int len, const __FlashStringHelper* descr, const tag outtags[], const int outtags_len)
 {
-  Serial.println(seed_);
   String out = "";
   out += descr;
   out += F("REGISTER:");
@@ -227,9 +226,6 @@ boolean TaggedValue::hasValue()
 
 boolean TaggedValue::check(const char* in)
 {
-	Serial.print("Base  check: ");
-	Serial.println(in);
-
   return startsWith_P(tag, in);
 };
 

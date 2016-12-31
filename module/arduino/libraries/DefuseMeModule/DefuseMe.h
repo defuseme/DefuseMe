@@ -79,10 +79,7 @@ public:
 		return _sno;
 	}
 	virtual void parse(const char* in) {
-		Serial.print("Sno parse: ");
-		Serial.println(in);
 		strcpy(_sno, strchr(in, ':') + 1);
-		Serial.println(_sno);
 
 		TaggedValue::parse(in);
 	};
