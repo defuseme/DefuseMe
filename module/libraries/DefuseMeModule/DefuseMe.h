@@ -92,13 +92,11 @@ private:
    description of a feature (for example name="LED",data="4" to tell your neighbours you have 4 leds)
 */
 struct tag {
-/*	tag(const  __FlashStringHelper* cname, char* cdata)
-	{
-		name = cname; data = cdata;
-	};
- */
-const  __FlashStringHelper* name;
-  char* data;
+	tag() {};
+	tag(const  __FlashStringHelper* cname, char* cdata)	{ name = cname; data = cdata; };
+
+	const __FlashStringHelper* name;
+    char* data;
 };
 
 
@@ -107,7 +105,7 @@ const  __FlashStringHelper* name;
 */
 struct GameState {
   /**
-     time in ms
+     count down time in ms
   */
   long int time;
   /**
@@ -115,6 +113,7 @@ struct GameState {
      0 - deactivated
      1 - active
      2 - exploded
+	 3 - sleep
   */
   byte state;
   /**

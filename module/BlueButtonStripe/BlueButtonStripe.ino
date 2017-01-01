@@ -1,13 +1,14 @@
 #include "pins_arduino.h"
 #include "DefuseMe.h"
-#include "DebounceInput.h"
 #include "PushButton.h"
 #include "LED.h"
 #include "StateMachine.h"
+#include "GameCode.h"
 #include <Adafruit_NeoPixel.h>
-#ifdef __AVR__
-#include <avr/power.h>
-#endif
+
+GameCode game;
+
+///////////////////////////////////////////////////////////////////////////////
 
 class StateMachineBlueButton : public StateMachine
 {
@@ -48,8 +49,6 @@ LED armedLED(PIN_ARMED_LED);
 LED buttonLED(PIN_BUTTON_LED);
 
 byte variant = 0;
-char snoFirst = '1', snoLast = '9';
-
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -57,6 +56,8 @@ void setup (void)
 {
   Serial.begin (115200);
   Serial.println(F("Blue Button - LED Stripe"));
+
+  game.PrintList();
 
   // init the module engine with SPI and random seed
   module.begin();
@@ -75,15 +76,26 @@ void setup (void)
 
   // the Values we want to read from our neighbours
   IntTaggedValue blinking(F("BLINKINGLED"));
-  SnoTaggedValue sno = SnoTaggedValue(F("SNO"));
+  SnoTaggedValue sno(F("SNO"));
   TaggedValue* interestingTags[2] = {&blinking, &sno};
 
   // the Values we want to send out to our neighbours
-
-  tag *ourtags = new tag[3];// { ("A","B"), ("A","B"), ("A","B") };
+/*
+  tag *ourtags = new tag[3];
   ourtags[0] = {.name = F("ACTIVE"), .data = "true"}; //active module =>user interaction possible
   ourtags[1] = {.name = F("BUTTON"), .data = "1"}; //1 button
   ourtags[2] = {.name = F("STRIPE"), .data = "1"}; //1 leds stripe
+
+  ourtags[0] = tag(F("ACTIVE"), "true"); //active module =>user interaction possible
+  ourtags[1] = tag(F("BUTTON"), "1"); //1 button
+  ourtags[2] = tag(F("STRIPE"), "1"); //1 leds stripe
+*/
+  tag *ourtags = new tag[3] {
+    tag(F("ACTIVE"), "true"), //active module =>user interaction possible
+    tag(F("BUTTON"), "1"), //1 button
+    tag(F("STRIPE"), "1") //1 leds stripe
+  };
+
 
   // creates the module description and waits for the bomb controller to send the broadcasts of the other members and start the game
   module.waitForInit(interestingTags, 2, F("ID:1111\n"
@@ -94,10 +106,16 @@ void setup (void)
                      "REPO:https://github.com/defuseme/DefuseMe\n"),
                      ourtags, 3);
 
+  byte digit1 = 255;
+  byte digit2 = 255;
+  byte digit3 = 255;
+  byte blueLED = 0;
+
   // parse tags from neighbours
   if (blinking.hasValue()) {
     Serial.print(F("BLINKINGLED was set. Value: "));
     Serial.println(  blinking.getValue());
+    blueLED = blinking.getValue();
   }
   else
     Serial.println( "No blinking LED");
@@ -111,11 +129,21 @@ void setup (void)
         pixels.setPixelColor(i, 0, 0, (sno.getDigit(i) - '0') * 20);
       pixels.show(); // This sends the updated pixel color to the hardware.
     }
-    snoFirst = sno.getDigit(0);
-    snoLast = sno.getDigit(14);
+
+    digit1 = sno.getDigit(0) - '0';
+    digit2 = sno.getDigit(1) - '0';
+    digit3 = sno.getDigit(2) - '0';
   }
   else
     Serial.println( "No SNO");
+
+  game.CalcSNOCode(digit1, digit2, digit3, blueLED);
+
+  Serial.print(F("Button action: "));
+  Serial.print(game._buttonPressAt);
+  Serial.print(F(", "));
+  Serial.print(game._buttonReleaseAt);
+  Serial.println();
 
   // those are not needed anymore
   delete ourtags;
@@ -125,7 +153,7 @@ void setup (void)
 
 void loop (void)
 {
-  if (module.updateState())
+  if (module.updateState())   // any change from bomb data
   {
     engine.SetGameState(module.getGameState());
 
@@ -148,9 +176,9 @@ byte StateMachineBlueButton::DoProcessInternal()
     case S_Init:
       WatchDog(0);   // reset watchdog
       blueButton.DoReset();   // reset pressed and released flags in button class
-      buttonLED = 1;
+      buttonLED = 1;   // turn the LED on
       armedLED = 1;
-      module.setMyState(1);   // armed
+      module.setArmed();   // set module to armed
       nFadeValue = 255;
       return S_FadeDown;
 
@@ -181,7 +209,7 @@ byte StateMachineBlueButton::DoProcessInternal()
     case S_ButtonPressed:
       buttonLED = 1;
       // >>> code your game logic here
-      if (sec1Digit != (snoLast - '0'))
+      if (! game.IsButtonPressAt(sec1Digit))
         return S_BOOM;
       WatchDog(10000);   // if button pressed for more than 10sec, reset state machine
       return S_Wait4ButtonReleased;
@@ -196,7 +224,7 @@ byte StateMachineBlueButton::DoProcessInternal()
     case S_ButtonReleased:
       WatchDog(0);   // reset watchdog
       // >>> code your game logic here
-      if (sec1Digit != (snoFirst - '0'))
+      if (! game.IsButtonReleaseAt(sec1Digit))
         return S_BOOM;
       //      if (blueButton.GetDownTime() < 2000)
       //        return S_BOOM;
@@ -226,7 +254,7 @@ byte StateMachineBlueButton::DoProcessInternal()
     // S_Disarmed - set bomb to disarmed and be quiet
 
     case S_Disarmed:
-      module.setMyState(0);   // set bomb to disarmed
+      module.setDisarmed();   // set module to disarmed
       armedLED = 0;
       buttonLED = 0;
       pixels.clear();

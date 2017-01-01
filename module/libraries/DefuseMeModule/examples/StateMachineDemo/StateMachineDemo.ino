@@ -1,8 +1,10 @@
 #include "pins_arduino.h"
 #include "DefuseMe.h"
-#include "DebounceInput.h"
 #include "PushButton.h"
+#include "LED.h"
 #include "StateMachine.h"
+
+///////////////////////////////////////////////////////////////////////////////
 
 class StateMachineBlueButton : public StateMachine
 {
@@ -29,73 +31,77 @@ class StateMachineBlueButton : public StateMachine
 
 #define PIN_BUTTON_INPUT 2
 #define PIN_BUTTON_LED 9
-#define PIN_ARMED_LED 0
-#define LED_ON 0
-#define LED_OFF 1
+#define PIN_ARMED_LED 3
 
 DefuseMeModule module;
 StateMachineBlueButton engine;
 PushButton blueButton(PIN_BUTTON_INPUT);
+LED armedLED(PIN_ARMED_LED);
+LED buttonLED(PIN_BUTTON_LED);
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void setup (void)
 {
-  //Serial.begin (115200);
-  //Serial.println(F("startstart"));
+  Serial.begin (115200);
+  Serial.println(F("State Machine Demo"));
+
+  // init the module engine with SPI and random seed
+  module.begin();
 
   // init "Armed LED" - pin 0 (RX) can not be uses in combination with serial
-  pinMode(PIN_ARMED_LED, OUTPUT);
-  digitalWrite(PIN_ARMED_LED, LED_ON);
+  armedLED = 1;
+  buttonLED = 1;
 
-  pinMode(PIN_BUTTON_LED, OUTPUT);
+  // the Values we want to read from our neighbours
+  IntTaggedValue blinking(F("BLINKINGLED"));
+  SnoTaggedValue sno(F("SNO"));
+  TaggedValue* interestingTags[2] = {&blinking, &sno};
 
-  //The Values we want to read from our neighbours
-  IntTaggedValue test = IntTaggedValue(F("TEST"));
-  IntTaggedValue button = IntTaggedValue(F("BUTTON"));
-  TaggedValue* interestingTags[2] =  {&test, &button};
+  // the Values we want to send out to our neighbours
+  tag *ourtags = new tag[2] {
+    tag(F("ACTIVE"), "true"), //active module =>user interaction possible
+    tag(F("BUTTON"), "1"), //1 button
+  };
 
+  // creates the module description and waits for the bomb controller to send the broadcasts of the other members and start the game
+  module.waitForInit(interestingTags, 2, F("ID:0815\n"
+                     "VERSION:0.1\n"
+                     "URL:https://defuseme.org/\n"
+                     "AUTHOR:JK\n"
+                     "DESC:State Machine Demo\n"
+                     "REPO:https://github.com/defuseme/DefuseMe\n"),
+                     ourtags, 2);
 
-  //The Values we want to send out to our neighbours
-  tag *ourtags = new tag[3];
-  ourtags[0] = {.name = F("ACTIVE"), .data = "true"}; //active module =>user interaction possible
-  ourtags[1] = {.name = F("BUTTON"), .data = "1"}; //1 button
-  ourtags[2] = {.name = F("LED"), .data = "4"}; //4 leds
+  // parse tags from neighbours
+  if (blinking.hasValue()) {
+    Serial.print(F("BLINKINGLED was set. Value: "));
+    Serial.println(  blinking.getValue());
+    // >>> do somthing with the count of LEDs for game logic
+    // blueLED = blinking.getValue();
+  }
+  else
+    Serial.println( "No blinking LED");
 
-  /*
-    //creates the module description and waits for the bomb controller to send the broadcasts of the other members and start the game
-    module.waitForInit(interestingTags, 2, F("ID:2355\n"
-                                  "VERSION:0\n"
-                                  "URL:https://example.com/\n"
-                                  "AUTHOR:Testperson\n"
-                                  "DESC:Button and Led Module\n"
-                                  "REPO:https://github.com/me/awesome-module.git\n"),
-                       ourtags, 3);
+  if (sno.hasValue()) {
+    Serial.print(F("SNO was set. Value: "));
+    Serial.println( (char*)sno.getString());
+    // >>> do somthing with the serial number for game logic
+    // digit1 = sno.getDigit(0) - '0';
+  }
+  else
+    Serial.println( "No SNO");
 
-
-    if (button.hasValue()) {
-      Serial.print(F("BUTTON was set. Value: "));
-      Serial.println(  button.getValue());
-    } else {
-      Serial.println(F("BUTTON was not set!"));
-    }
-
-    //those are not needed anymore
-    delete ourtags;
-  */
+  // those are not needed anymore
+  delete ourtags;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void loop (void)
 {
-  if (module.updateState())
+  if (module.updateState())   // any change from bomb data
   {
-    // Demo...
-    long countdown = module.getGameState().time;
-    byte state = module.getGameState().state;
-    byte strikes = module.getGameState().strikes;
-
     engine.SetGameState(module.getGameState());
   }
 
@@ -114,9 +120,9 @@ byte StateMachineBlueButton::DoProcessInternal()
     case S_Init:
       WatchDog(0);   // reset watchdog
       blueButton.DoReset();   // reset pressed and released flags in button class
-      digitalWrite(PIN_BUTTON_LED, LED_ON);
-      digitalWrite(PIN_ARMED_LED, LED_ON);
-      module.setMyState(1);   // armed
+      buttonLED = 1;   // turn the LED on
+      armedLED = 1;
+      module.setArmed();   // set module to armed
       nFadeValue = 255;
       return S_FadeDown;
 
@@ -126,7 +132,7 @@ byte StateMachineBlueButton::DoProcessInternal()
       if (blueButton.IsJustPressed())
         return S_ButtonPressed;
       nFadeValue++;
-      analogWrite(PIN_BUTTON_LED, nFadeValue);
+      buttonLED.dim( nFadeValue);
       DelayNext(2);
       if (nFadeValue == 255)
         return S_FadeDown;
@@ -136,7 +142,7 @@ byte StateMachineBlueButton::DoProcessInternal()
       if (blueButton.IsJustPressed())
         return S_ButtonPressed;
       nFadeValue--;
-      analogWrite(PIN_BUTTON_LED, nFadeValue);
+      buttonLED.dim( nFadeValue);
       DelayNext(2);
       if (nFadeValue == 0)
         return S_FadeUp;
@@ -145,7 +151,7 @@ byte StateMachineBlueButton::DoProcessInternal()
     // S_ButtonPressed - action at button was pressed
 
     case S_ButtonPressed:
-      digitalWrite(PIN_BUTTON_LED, LED_ON);
+      buttonLED = 1;
       // >>> code your game logic here
       WatchDog(10000);   // if button pressed for more than 10sec, reset state machine
       return S_Wait4ButtonReleased;
@@ -170,34 +176,34 @@ byte StateMachineBlueButton::DoProcessInternal()
 
     case S_BOOM:
       module.trigger();   // triger produces a strike on each call
-      WatchDog(2000);   // reset state machine after 2sec flickering
+      WatchDog(1000);   // reset state machine after 2sec flickering
       return S_BOOM_0;
 
     case S_BOOM_0:
-      digitalWrite(PIN_ARMED_LED, LED_ON);
-      digitalWrite(PIN_BUTTON_LED, LED_OFF);
+      armedLED = 1;
+      buttonLED = 0;
       DelayNext(50);   // flicker with 10Hz
       return S_BOOM_1;   // endless loop - ended by watchdog
 
     case S_BOOM_1:
-      digitalWrite(PIN_ARMED_LED, LED_OFF);
-      digitalWrite(PIN_BUTTON_LED, LED_ON);
+      armedLED = 0;
+      buttonLED = 1;
       DelayNext(50);   // flicker with 10Hz
       return S_BOOM_0;   // endless loop - ended by watchdog
 
     // S_Disarmed - set bomb to disarmed and be quiet
 
     case S_Disarmed:
-      module.setMyState(0);   // set bomb to disarmed
-      digitalWrite(PIN_ARMED_LED, LED_OFF);
-      digitalWrite(PIN_BUTTON_LED, LED_OFF);
+      module.setDisarmed();   // set module to disarmed
+      armedLED = 0;
+      buttonLED = 0;
       return S_Wait4Godot;
 
     // S_Wait4Godot - wait forever (until button pressed again)
 
     case S_Wait4Godot:
       if (blueButton.IsJustPressed())
-        digitalWrite(PIN_BUTTON_LED, LED_ON);
+        buttonLED = 1;
       if (blueButton.IsJustReleased())
         return S_BOOM;
       break;
@@ -205,5 +211,4 @@ byte StateMachineBlueButton::DoProcessInternal()
 
   return _eState;   // no state change - repeat actual state
 }
-
 
