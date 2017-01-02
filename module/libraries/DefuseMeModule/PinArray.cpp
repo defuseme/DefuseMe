@@ -1,5 +1,7 @@
 #include "PinArray.h"
 
+////////////////////////////////////////////////////////////////////////////
+
 PinArray::PinArray(int Pin0, int Pin1, int Pin2, int Pin3, int Pin4, int Pin5, int Pin6, int Pin7, int Pin8, int Pin9, int Pin10, int Pin11, int Pin12, int Pin13, int Pin14, int Pin15)
 {
   _aPinPort[0] = Pin0;
@@ -38,6 +40,8 @@ PinArray::PinArray(int Pin0, int Pin1, int Pin2, int Pin3, int Pin4, int Pin5, i
   _millisSlot = 0;
 }
 
+////////////////////////////////////////////////////////////////////////////
+
 bool PinArray::IsConnected(int a, int b)
 {
   if (a >= 16 || b >= 16)
@@ -49,15 +53,30 @@ bool PinArray::IsConnected(int a, int b)
   return (map & mask);
 }
 
+////////////////////////////////////////////////////////////////////////////
+
 bool PinArray::IsAnyConnected(int a)
 {
   if (a >= 16)
     return false;
 
-  int map = _aMap[a];
-
-  return (map != 0);
+  return (_aMap[a] != 0);
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+bool PinArray::IsAnyConnected()
+{
+  for (byte i = 0; i < _nPins; i++)
+  {
+    if ( _aMap[i] )
+      return true;
+  }
+
+  return false;
+}
+
+////////////////////////////////////////////////////////////////////////////
 
 bool PinArray::IsGrounded(int a)
 {
@@ -70,6 +89,8 @@ bool PinArray::IsGrounded(int a)
   return (map & mask);
 }
 
+////////////////////////////////////////////////////////////////////////////
+
 bool PinArray::IsAnyGrounded()
 {
   int map = _aMap[16];
@@ -77,7 +98,41 @@ bool PinArray::IsAnyGrounded()
   return (map != 0);
 }
 
+////////////////////////////////////////////////////////////////////////////
+
 byte PinArray::GetConnections()
+{
+  byte nConnections = 0;
+
+  int mask = 1;
+  int printed = 0;
+  int map = 0;
+
+  for (byte i = 0; i < 16; i++)
+  {
+    int map = _aMap[i];
+    int mask = 1;
+
+    if (map && !(printed & (1 << i)))
+    {
+      for (byte j = 0; j < 16; j++)
+      {
+        if ((map & mask) && !(printed & mask))
+        {
+          nConnections++;
+          printed |= mask;
+        }
+        mask <<= 1;
+      }
+    }
+  }
+
+  return nConnections;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+byte PinArray::GetConnectionsEx()
 {
   byte nConnections = 0;
 
@@ -87,13 +142,12 @@ byte PinArray::GetConnections()
     int mask = 1;
     for (byte j = 0; j < 16; j++)
     {
-		if (map & mask)
-		{
-nConnections++;
-if (_aPinPort[i] == 99)
-nConnections++;
-		}
-        
+      if (map & mask)
+      {
+        nConnections++;
+        if (_aPinPort[i] == 99)
+          nConnections++;
+      }
       mask <<= 1;
     }
   }
@@ -103,6 +157,26 @@ nConnections++;
   return nConnections;
 }
 
+////////////////////////////////////////////////////////////////////////////
+
+byte PinArray::GetGroundConnections()
+{
+  byte nConnections = 0;
+
+  int map = _aMap[16];
+  int mask = 1;
+  for (byte j = 0; j < 16; j++)
+  {
+    if (map & mask)
+      nConnections++;
+    mask <<= 1;
+  }
+
+  return nConnections;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 int PinArray::ScanInput()
 {
   int mask = 1;
@@ -110,7 +184,7 @@ int PinArray::ScanInput()
 
   for (byte i = 0; i < _nPins; i++)
   {
-    if (_aPinPort[i] >= 0&& _aPinPort[i] < 99)
+    if (_aPinPort[i] >= 0 && _aPinPort[i] < 99)
     {
       if (!digitalRead(_aPinPort[i]))
         map |= mask;
@@ -120,6 +194,8 @@ int PinArray::ScanInput()
 
   return map;
 }
+
+////////////////////////////////////////////////////////////////////////////
 
 void PinArray::Scan()
 {
@@ -184,6 +260,8 @@ void PinArray::Scan()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////
+
 void PinArray::DoProcess()
 {
   unsigned long millisAct = millis();
@@ -194,12 +272,15 @@ void PinArray::DoProcess()
   Scan();
 }
 
+////////////////////////////////////////////////////////////////////////////
 
 bool PinArray::IsJustChanged()
 { byte bChanged = _bChanged;
   _bChanged = false;
   return bChanged;
 }
+
+////////////////////////////////////////////////////////////////////////////
 
 void PinArray::Print()
 {
@@ -238,43 +319,47 @@ void PinArray::Print()
   Serial.println();
 }
 
+////////////////////////////////////////////////////////////////////////////
+
 byte PinArray::GetConnections(PinArrayConnection c[], byte maxCount)
 {
-	byte nCount = 0;
-	int mask = 1;
-	int printed = 0;
-	int map = 0;
+  byte nCount = 0;
+  int mask = 1;
+  int printed = 0;
+  int map = 0;
 
-	for (byte i = 0; i < 17; i++)
-	{
-		int map = _aMap[i];
-		int mask = 1;
+  for (byte i = 0; i < 17; i++)
+  {
+    int map = _aMap[i];
+    int mask = 1;
 
-		if (map && !(printed & (1 << i)))
-		{
-			//        Serial.print("# ");
-			printed |= (1 << i);
+    if (map && !(printed & (1 << i)))
+    {
+      //        Serial.print("# ");
+      printed |= (1 << i);
 
-			for (byte j = 0; j < 16; j++)
-			{
-				if ((map & mask) && !(printed & mask))
-				{
-					if (i == 16)
-						c[nCount].a = 99;
-					else
-						c[nCount].a = i;
+      for (byte j = 0; j < 16; j++)
+      {
+        if ((map & mask) && !(printed & mask))
+        {
+          if (i == 16)
+            c[nCount].a = 99;
+          else
+            c[nCount].a = i;
 
-					c[nCount].b = j;
-					nCount++;
-					if (nCount >= maxCount)
-						return nCount;
-					printed |= mask;
-				}
-				mask <<= 1;
-			}
-		}
-	}
+          c[nCount].b = j;
+          nCount++;
+          if (nCount >= maxCount)
+            return nCount;
+          printed |= mask;
+        }
+        mask <<= 1;
+      }
+    }
+  }
 
-
-	return nCount;
+  return nCount;
 }
+
+////////////////////////////////////////////////////////////////////////////
+

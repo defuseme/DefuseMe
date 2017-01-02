@@ -17,23 +17,40 @@ void setup() {
   module.begin();
 
   // the Values we want to read from our neighbours
-  IntTaggedValue snoTag = IntTaggedValue(F("SNO"));
-  IntTaggedValue blueblinkTag = IntTaggedValue(F("BLUEBLINK"));
+  SnoTaggedValue snoTag(F("SNO"));
+  IntTaggedValue blueblinkTag(F("BLINKINGLED"));
   TaggedValue* interestingTags[2] =  {&snoTag, &blueblinkTag};
 
   // the Values we want to send out to our neighbours
-  tag *ourtags = new tag[2];
-  ourtags[0] = {.name = F("ACTIVE"), .data = "true"}; // passive module =>no user interaction possible
-  ourtags[1] = {.name = F("PLUG"), .data = "16"}; // 16 Post plugs
+  tag *ourtags = new tag[2] {
+    tag(F("ACTIVE"), "true"), //active module =>user interaction possible
+    tag(F("PLUG"), "16") //16 plugs
+  };
+
 
   // creates the module description and waits for the bomb controller to send the broadcasts of the other members and start the game
-  module.waitForInit(interestingTags,  2, F("ID:0044\n"
+  module.waitForInit(interestingTags, 2, F("ID:0044\n"
                      "VERSION:0.0\n"
                      "URL:https://defuseme.org/\n"
                      "AUTHOR:JK\n"
                      "DESC:Plug Array 4x4 - AT WORK\n"
                      "REPO:https://github.com/defuseme/DefuseMe\n"),
                      ourtags, 2);
+
+  // parse tags from neighbours
+  if (blueblinkTag.hasValue()) {
+    Serial.print(F("BLINKINGLED was set. Value: "));
+    Serial.println(  blueblinkTag.getValue());
+  }
+  else
+    Serial.println( "No blinking LED");
+
+  if (snoTag.hasValue()) {
+    Serial.print(F("SNO was set. Value: "));
+    Serial.println( (char*)snoTag.getString());
+  }
+  else
+    Serial.println( "No SNO");
 
   // those are not needed anymore
   delete ourtags;
