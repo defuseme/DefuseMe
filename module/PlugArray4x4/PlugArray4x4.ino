@@ -27,7 +27,6 @@ void setup() {
     tag(F("PLUG"), "16") //16 plugs
   };
 
-
   // creates the module description and waits for the bomb controller to send the broadcasts of the other members and start the game
   module.waitForInit(interestingTags, 2, F("ID:0044\n"
                      "VERSION:0.0\n"

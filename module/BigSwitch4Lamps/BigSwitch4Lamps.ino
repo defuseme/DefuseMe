@@ -159,10 +159,11 @@ void setup (void)
   module.begin();
 
   //The Values we want to send out to our neighbours
-  tag *ourtags = new tag[3];
-  ourtags[0] = {.name = F("ACTIVE"), .data = "true"}; //active module =>user interaction possible
-  ourtags[1] = {.name = F("SWITCH"), .data = "1"}; //1 switch
-  ourtags[2] = {.name = F("LED"), .data = "4"}; //4 gameLEDs
+  tag *ourtags = new tag[3] {
+    tag(F("ACTIVE"), "true"), //active module =>user interaction possible
+    tag(F("SWITCH"), "1"), //1 switch
+    tag(F("LED"), "4"), //4 gameLEDs
+  };
 
   //creates the module description and waits for the bomb controller to send the broadcasts of the other members and start the game
   module.waitForInit(NULL, 0, F("ID:0104\n"
@@ -172,6 +173,9 @@ void setup (void)
                                 "DESC:Bif Switch - 4 Lamps - AT WORK\n"
                                 "REPO:https://github.com/defuseme/DefuseMe\n"),
                      ourtags, 3);
+
+  // those are not needed anymore
+  delete ourtags;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -264,26 +264,20 @@ void setup() {
   LabyInit();
   LabyDisplay();
 
-  // the Values we want to read from our neighbours
-  IntTaggedValue test = IntTaggedValue(F("TEST"));
-  IntTaggedValue button = IntTaggedValue(F("BUTTON"));
-  TaggedValue* interestingTags[2] =  {&test, &button};
-
-
   // the Values we want to send out to our neighbours
-  tag *ourtags = new tag[3];
-  ourtags[0] = {.name = F("ACTIVE"), .data = "true"}; //active module =>user interaction possible
-  ourtags[1] = {.name = F("BUTTON"), .data = "4"}; //4 button
-  ourtags[2] = {.name = F("MATRIX"), .data = "1"}; //1 matrix
-
+  tag *ourtags = new tag[3] {
+    tag(F("ACTIVE"), "true"), //active module =>user interaction possible
+    tag(F("BUTTON"), "4"), //4 button
+    tag(F("MATRIX"), "1"), //1 matrix
+  };
 
   // creates the module description and waits for the bomb controller to send the broadcasts of the other members and start the game
-  module.waitForInit(interestingTags,  2, F("ID:1248\n"
-                     "VERSION:0.2\n"
-                     "URL:https://defuseme.org/\n"
-                     "AUTHOR:JK\n"
-                     "DESC:Labyrinth Matrix\n"
-                     "REPO:https://github.com/defuseme/DefuseMe\n"),
+  module.waitForInit(NULL, 0, F("ID:1248\n"
+                                "VERSION:0.2\n"
+                                "URL:https://defuseme.org/\n"
+                                "AUTHOR:JK\n"
+                                "DESC:Labyrinth Matrix\n"
+                                "REPO:https://github.com/defuseme/DefuseMe\n"),
                      ourtags, 3);
 
   // those are not needed anymore

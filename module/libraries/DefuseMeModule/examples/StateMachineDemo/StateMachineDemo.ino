@@ -54,9 +54,9 @@ void setup (void)
   buttonLED = 1;
 
   // the Values we want to read from our neighbours
-  IntTaggedValue blinking(F("BLINKINGLED"));
-  SnoTaggedValue sno(F("SNO"));
-  TaggedValue* interestingTags[2] = {&blinking, &sno};
+  IntTaggedValue blinkingTag(F("BLINKINGLED"));
+  SnoTaggedValue snoTag(F("SNO"));
+  TaggedValue* interestingTags[2] = {&blinkingTag, &snoTag};
 
   // the Values we want to send out to our neighbours
   tag *ourtags = new tag[2] {
@@ -74,20 +74,20 @@ void setup (void)
                      ourtags, 2);
 
   // parse tags from neighbours
-  if (blinking.hasValue()) {
+  if (blinkingTag.hasValue()) {
     Serial.print(F("BLINKINGLED was set. Value: "));
-    Serial.println(  blinking.getValue());
+    Serial.println(  blinkingTag.getValue());
     // >>> do somthing with the count of LEDs for game logic
-    // blueLED = blinking.getValue();
+    // blueLED = blinkingTag.getValue();
   }
   else
     Serial.println( "No blinking LED");
 
-  if (sno.hasValue()) {
+  if (snoTag.hasValue()) {
     Serial.print(F("SNO was set. Value: "));
-    Serial.println( (char*)sno.getString());
+    Serial.println( (char*)snoTag.getString());
     // >>> do somthing with the serial number for game logic
-    // digit1 = sno.getDigit(0) - '0';
+    // digit1 = snoTag.getDigit(0) - '0';
   }
   else
     Serial.println( "No SNO");

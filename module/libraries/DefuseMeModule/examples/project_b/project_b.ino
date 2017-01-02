@@ -8,13 +8,16 @@ void setup (void)
   Serial.begin (9600);
   Serial.println(F("startstart"));
 
-  //The Values we want to read from our neighbours
-  IntTaggedValue test = IntTaggedValue(F("TEST"));
-  IntTaggedValue button = IntTaggedValue(F("BUTTON"));
+  // init the module engine with SPI and random seed
+  module.begin();
+
+  // the Values we want to read from our neighbours
+  IntTaggedValue test(F("TEST"));
+  IntTaggedValue button(F("BUTTON"));
   TaggedValue* interestingTags[2] =  {&test, &button};
 
 
-  //The Values we want to send out to our neighbours
+  // the Values we want to send out to our neighbours
   tag *ourtags = new tag[3];
   ourtags[0] = {.name = F("ACTIVE"), .data = "true"}; //active module =>user interaction possible
   ourtags[1] = {.name = F("BUTTON"), .data = "1"}; //1 button

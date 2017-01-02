@@ -98,9 +98,12 @@ void setup (void)
                                 "DESC:Inlay Serial Number\n"
                                 "REPO:https://github.com/defuseme/DefuseMe\n"),
                      ourtags, 2);
-  
-  // set to disarmed
-  module.setMyState(0);
+
+  // set module to disarmed
+  module.setDisarmed();
+
+  //those are not needed anymore
+  delete ourtags;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -109,8 +112,7 @@ void loop (void)
 {
   if (module.updateState())
   {
-    // demo
-    byte state = module.getGameState().state;
+    // do nothing
   }
 
   // do nothing

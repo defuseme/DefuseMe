@@ -27,11 +27,13 @@ void setup (void)
   // init the module engine with SPI and random seed
   module.begin();
   matrix.begin(0x70);
+  matrix.setBrightness(15);
 
   // the Values we want to send out to our neighbours
-  tag *ourtags = new tag[2];
-  ourtags[0] = {.name = F("ACTIVE"), .data = "false"}; //passive module =>no user interaction possible
-  ourtags[1] = {.name = F("7SEG"), .data = "1"}; //7 segment panels
+  tag *ourtags = new tag[2]{
+    tag(F("ACTIVE"), "false"), //passive module =>no user interaction possible
+    tag(F("7SEG"), "1"), //7 segment panels
+  };
 
   // creates the module description and waits for the bomb controller to send the broadcasts of the other members and start the game
   module.waitForInit(NULL, 0, F("ID:8888\n"
@@ -42,7 +44,7 @@ void setup (void)
                                 "REPO:https://github.com/defuseme/DefuseMe\n"),
                      ourtags, 2);
 
-  module.setMyState(0);//module is inactive
+  module.setDisarmed();//module is inactive
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -87,6 +89,11 @@ void loop (void)
   {
     for (byte i = 0; i < 4; i++)
       strikeLED[i] = 0;
+	for (byte i = 0; i <= 15; i++)
+	{
+		matrix.setBrightness(15-i);
+		delay(100);
+	}
   }
   else   // armed
   {
@@ -97,4 +104,3 @@ void loop (void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-

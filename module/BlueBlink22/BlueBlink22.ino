@@ -15,7 +15,7 @@ void setup (void)
   // init the module engine with SPI and random seed
   module.begin();
 
-  byte predOn = random(3, 14);
+  byte predOn = random(3, 15);
   byte actOn = 0;
 
   Serial.print(F("LEDs: "));
@@ -44,10 +44,11 @@ void setup (void)
   sprintf(sBlinking, "%d", actOn);
 
   //The Values we want to send out to our neighbours
-  tag *ourtags = new tag[3];
-  ourtags[0] = {.name = F("ACTIVE"), .data = "false"}; //passive module =>no user interaction possible
-  ourtags[1] = {.name = F("LED"), .data = "22"}; //22 leds present
-  ourtags[2] = {.name = F("BLINKINGLED"), .data = sBlinking}; //x leds are blinking
+  tag *ourtags = new tag[3] {
+    tag(F("ACTIVE"), "false"), //passive module =>no user interaction possible
+    tag(F("LED"), "22"), //22 leds present
+    tag(F("BLINKINGLED"), sBlinking), //x leds are blinking
+  };
 
   //creates the module description and waits for the bomb controller to send the broadcasts of the other members and start the game
   module.waitForInit(NULL, 0, F("ID:0022\n"
@@ -57,6 +58,9 @@ void setup (void)
                                 "DESC:22 Blinking Blue LEDs\n"
                                 "REPO:https://github.com/defuseme/DefuseMe\n"),
                      ourtags, 3);
+
+  // set module to disarmed
+  module.setDisarmed();
 
   //those are not needed anymore
   delete ourtags;
