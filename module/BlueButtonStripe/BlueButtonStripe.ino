@@ -35,9 +35,9 @@ protected:
   virtual byte DoProcessInternal();
 };
 
-#define PIN_BUTTON_INPUT 2
+#define PIN_BUTTON_INPUT 8
 #define PIN_BUTTON_LED 9
-#define PIN_ARMED_LED 0
+#define PIN_ARMED_LED 2
 
 uint32_t color[5]{ 0x300000, 0x202000, 0x003000, 0x000030, 0x200020 };  // 0x002020, cyan is not descripable
 
