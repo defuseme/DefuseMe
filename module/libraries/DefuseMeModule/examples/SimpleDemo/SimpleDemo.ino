@@ -11,9 +11,9 @@ LED armedLED(PIN_ARMED_LED);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void setup (void)
+void setup(void)
 {
-  Serial.begin (115200);
+  Serial.begin(115200);
   Serial.println(F("Simple Demo"));
 
   // init the module engine with SPI and random seed
@@ -23,19 +23,19 @@ void setup (void)
   armedLED = 1;   // switch LED on
 
   // the Values we want to send out to our neighbours
-  tag *ourtags = new tag[2] {
+  tag *ourtags = new tag[2]{
     tag(F("ACTIVE"), "true"), //active module =>user interaction possible
     tag(F("ANYTHING"), "1"), //1 ...
   };
 
   // creates the module description and waits for the bomb controller to send the broadcasts of the other members and start the game
   module.waitForInit(NULL, 0, F("ID:0815\n"
-                                "VERSION:0.1\n"
-                                "URL:https://defuseme.org/\n"
-                                "AUTHOR:JK\n"
-                                "DESC:Simple Demo\n"
-                                "REPO:https://github.com/defuseme/DefuseMe\n"),
-                     ourtags, 2);
+    "VERSION:0.1\n"
+    "URL:https://defuseme.org/\n"
+    "AUTHOR:JK\n"
+    "DESC:Simple Demo\n"
+    "REPO:https://github.com/defuseme/DefuseMe\n"),
+    ourtags, 2);
 
   // those are not needed anymore
   delete ourtags;
@@ -43,7 +43,7 @@ void setup (void)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void loop (void)
+void loop(void)
 {
   if (module.updateState())   // any change from bomb data
   {
