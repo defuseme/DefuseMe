@@ -4,3 +4,7 @@
 *.od*#
 *.swp
 **/__pycache__/
+.vs
+__vm
+Release
+Debug
