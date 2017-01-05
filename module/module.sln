@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BlueButtonStripe", "BlueButtonStripe\BlueButtonStripe.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
 EndProject
@@ -28,6 +28,29 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PassiveDemo", "libraries\DefuseMeModule\examples\PassiveDemo\PassiveDemo.vcxproj", "{FFE6B39A-A225-4A9B-BE2B-FEF5E4848434}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{359E101A-4F2E-4479-A732-359817F4FA27}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{613B01FE-9864-4CCC-9AE6-78BBFABC8929}"
+	ProjectSection(SolutionItems) = preProject
+		libraries\DefuseMeModule\DebounceInput.cpp = libraries\DefuseMeModule\DebounceInput.cpp
+		libraries\DefuseMeModule\DebounceInput.h = libraries\DefuseMeModule\DebounceInput.h
+		libraries\DefuseMeModule\DefuseMe.cpp = libraries\DefuseMeModule\DefuseMe.cpp
+		libraries\DefuseMeModule\DefuseMe.h = libraries\DefuseMeModule\DefuseMe.h
+		libraries\DefuseMeModule\DipSwitch.cpp = libraries\DefuseMeModule\DipSwitch.cpp
+		libraries\DefuseMeModule\DipSwitch.h = libraries\DefuseMeModule\DipSwitch.h
+		libraries\DefuseMeModule\FadeLED.h = libraries\DefuseMeModule\FadeLED.h
+		libraries\DefuseMeModule\keywords.txt = libraries\DefuseMeModule\keywords.txt
+		libraries\DefuseMeModule\LED.h = libraries\DefuseMeModule\LED.h
+		libraries\DefuseMeModule\library.properties = libraries\DefuseMeModule\library.properties
+		libraries\DefuseMeModule\MultiSwitch.cpp = libraries\DefuseMeModule\MultiSwitch.cpp
+		libraries\DefuseMeModule\MultiSwitch.h = libraries\DefuseMeModule\MultiSwitch.h
+		libraries\DefuseMeModule\PinArray.cpp = libraries\DefuseMeModule\PinArray.cpp
+		libraries\DefuseMeModule\PinArray.h = libraries\DefuseMeModule\PinArray.h
+		libraries\DefuseMeModule\PushButton.cpp = libraries\DefuseMeModule\PushButton.cpp
+		libraries\DefuseMeModule\PushButton.h = libraries\DefuseMeModule\PushButton.h
+		libraries\DefuseMeModule\README.adoc = libraries\DefuseMeModule\README.adoc
+		libraries\DefuseMeModule\StateMachine.cpp = libraries\DefuseMeModule\StateMachine.cpp
+		libraries\DefuseMeModule\StateMachine.h = libraries\DefuseMeModule\StateMachine.h
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
